@@ -9,8 +9,10 @@ This is a project for the course WI4204 Advanced Modeling at the TU Delft, in co
 #### Project repo
 https://github.com/ziolai/finite_element_electrical_engineering
 
-#### Repo of Gijs Lagerweij
+#### Repos of Gijs Lagerweij
 https://github.com/gijswl/ee4375_fem
+
+https://github.com/gijswl/ee4375_fem_ta
 
 #### Gmsh repo
 https://github.com/JuliaFEM/Gmsh.jl
