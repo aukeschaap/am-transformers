@@ -16,7 +16,12 @@ struct mesh_data
     elements    # <new addition> more conveniently structured connectivity array
 end
 
-# Loads nodes, elements, and element physical groups from gmsh and stores them in a mesh_data struct
+
+"""
+# `get_mesh_data()`
+
+Loads nodes, elements, and element physical groups from gmsh and stores them in a mesh_data struct
+"""
 function get_mesh_data()
     #..2/11 Get and sort the mesh nodes
     #..Observe that although the mesh is two-dimensional,

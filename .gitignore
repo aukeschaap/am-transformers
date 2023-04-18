@@ -28,3 +28,6 @@ report/latex/build/
 
 # Local files
 .local
+
+# Output files
+out/
