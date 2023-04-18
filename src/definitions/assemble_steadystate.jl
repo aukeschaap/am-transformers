@@ -1,7 +1,7 @@
 """
 # assemble_steadystate()
 
-Assembles stiffnes matrix, K, and right hand side, f or source, for the steady state of the z-component of the 
+Assembles stiffnes matrix, K, and right hand side, f or source, for the steady state solution of the z-component of the 
 vector potential, A_z, derived from the Maxwell Equations in a 2D plane for vector potential A = (0,0,A_z). Solving 
 the resulting linear system, Ku=f, for u gives the coefficients u_i of the bases functions phi_i in the weighted 
 sum that is A_z:
