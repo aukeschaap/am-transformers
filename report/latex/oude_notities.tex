@@ -1,0 +1,67 @@
+
+
+In Max's thesis, the following time-dependent potential formulation is derived:
+\begin{equation}
+    -\frac{\partial}{\partial x}\left(\mu^{-1} \frac{\partial A_z}{\partial x}\right) - \frac{\partial}{\partial y}\left(\mu^{-1} \frac{\partial A_z}{\partial y}\right) + \sigma \frac{\partial A_z}{\partial t} = J_z.
+\end{equation}
+
+\section{Notes}
+
+\subsection*{Stap 2: Assembly}
+
+\begin{equation*}
+    -\text{div}\left[c \;\text{grad}\;u\right] = f(x, y)
+\end{equation*}
+We doen een weak form. A.d.v. die weak form doen we ene FE discretisatie. We krijgen dan een systeem van lineaire vergelijkingen: $A\mathbf{u} = \mathbf{f}$.
+
+We hebben een connectiviteits matrix nodig om de nonuniformiteit van de mesh te vangen. Voor twee driehoeken werkt dat zo: [uitleg].
+Gmsh geeft je die connectiviteits matrix zelf. In de notebook staat een forloop over de elementen die daarmee A en f maakt.
+
+De volgende stap is om de tijdsafgeleide er bij te betrekken:
+\begin{align*}
+    f(x,y)+\text{div}\left[c \;\text{grad}\;u\right] = 0 \\
+    f(x,y)+\text{div}\left[\frac{1}{\mu} \;\text{grad}\;u\right] = \sigma \frac{\partial u}{\partial t}
+\end{align*}
+
+Hier is $\mu$ de permeabiliteit en $\sigma$ de conductivieit.
+
+
+\subsection{Verzadiging}
+Wat als superpositie niet meer geldig is? Dus wat gebeurt er als één frequentie een andere frequentie beinvloedt? Hoeveel frequenties neem je? Hoe reken je tegelijkertijd meerdere frequenties door? Als dat te lang kost, misschien is het tijdsdomein dan toch beter...
+
+\begin{equation*}
+    u(x,y,t) = u_1(x,y) e^{j\omega_1 t} + u_2(x,y) e^{j\omega_2 t} + \dots
+\end{equation*}
+
+$\mu = ?$ Linear: $\mu = \mu_{FE}$ constant. Nonlinear: $\mu = \mu_{FE}$ geldig voor de amplitude ($\hat \phi$) van de stroom die klein genoeg is (dus linear). Voorbij een bepaalde amplitude kan het ijzer niet meer als spons fungeren, en vlakt het af. Dan is het niet meer geldig. Wat dan met de superpositie?
+
+Linear: apart $\hat u_1(x,y)$ en $\hat u_2(x,y)$ oplossen. Nonlinear: gekoppeld $\hat u_1(x,y)$ én $\hat u_2(x,y)$ oplossen.
+\begin{align*}
+    f(x,y)+\text{div}\left[\frac{1}{\mu(\text{grad}\;u)} \;\text{grad}\;u\right] = \sigma \frac{\partial u}{\partial t} \\
+\end{align*}
+
+\begin{equation*}
+    \text{grad} \; u = B \;\; ?
+\end{equation*}
+
+Maxwell voor stationair ($\omega = 2\pi f = 0$) magneticsh veld
+\begin{align*}
+    \nabla \times \mathbf H = J \\
+    \nabla \cdot \mathbf B = 0 \\
+    \mathbf H = \frac{1}{\mu} \mathbf B
+\end{align*}
+
+\begin{align*}
+    \mathbf B = \nabla \times \mathbf A \\
+    \implies \\
+    \nabla \times \left[\frac{1}{\mu}\nabla \times \mathbf A\right] = \mathbf J
+\end{align*}
+
+\begin{itemize}
+    \item A: potentiaal
+\end{itemize}
+
+
+2D: rekendomein $\Omega$ in $xy$-vlak. De stroomdichtheid staat in de z-richting. In dat geval is $\mathbf A = (0, 0, A_z(x,y))$. Stop dit in B: $\mathbf B = \nabla \times \mathbf A$. $B_z = 0$, $B_x = \frac{\partial}{\partial y}A_z$, $B_y = \frac{\partial}{\partial x}A_z$. Dan is $||\mathbf B|| = \sqrt{B_x^2 + B_y^2 + B_z^2} = \sqrt{\dots}$ (invullen). Stop dit nu ook in $\mathbf H$.
+
+De volgendde stap is uitleggen dat $\mu = \mu\left(||\mathbf B ||\right)$. Linear in het begin, daarna afvlakking. Dan is $\mu$ de richting van de raaklijn van de B-H-kromme.

@@ -12,9 +12,53 @@
 \begin{document}
 \maketitle
 
-Let's start with the Maxwell equations:
+
+\section{Probleemanalyse}
+Als we uit de situatie het probleem afleiden \textbf{<VOEG AFLEIDNG IN>}, dan komen we uit op het volgende verband:
+
 \begin{equation}
-    \nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}
+    f(x,y)+\text{div}\left[\frac{1}{\mu} \;\text{grad}\;u\right] = \sigma \frac{\partial u}{\partial t},
 \end{equation}
+met de variablen:
+\begin{itemize}
+    \item $u$ is $A$.
+    \item $f(x,y)$: de current density in de z-richting ($J_z$) 
+    \item $\mu$: de permeabiliteit van het materiaal
+    \item $\sigma$: de conductiviteit van het materiaal.
+\end{itemize}
+
+Om dit probleem direct op te lossen (met FEM), leiden we de volgende weak form af:
+\begin{equation*}
+    \sigma M \dot u = \frac{1}{\mu}A u + f,
+\end{equation*}
+waar M diagonaal is. Omdat er heel veel tijdsstappen zijn gaat dat echter heel lang duren. Er zijn een aantal manieren om dit probleem te versimpelen.
+
+\subsection{Single frequency}
+Eén mogelijke aanname is dat, omdat de stroom een constante frequentie heeft, $u$ ook één frequentie heeft. Dan is seperation of variables geldig, en kunnen we seperation of variables toepassen:
+\begin{align*}
+    u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
+\end{align*}
+Dit proces betekent dus dat $\frac{\partial}{\partial t} \to \omega j$. Ons nieuwe systeem is dan:
+\begin{equation*}
+    \hat f(x,y)+\text{div}\left[\frac{1}{\mu} \;\text{grad}\;\hat u\right] = j\sigma \omega \hat u,
+\end{equation*}
+met de weak form
+\begin{equation*}
+    \left[j\sigma \omega M + \frac{1}{\mathbf \mu}A\right]\hat u = \hat f.
+\end{equation*}
+
+\subsection{Meerdere frequenties}
+De aanname dat er één frequentie is, is niet geldig. STEDIN meet namelijk dat dit niet het geval is. We kunnen het probleem ook opsplitsen in meerdere frequenties:
+\begin{equation}
+    u(x,y,t) = \hat u_1(x,y) e^{j\omega_1 t} + \hat u_2(x,y) e^{j\omega_2 t} + \dots.
+\end{equation}
+
+\subsubsection{Superpositie}
+Als we aannemen de frequenties elkaar niet beïnvloeden, kunnen we $\hat u_1(x,y)$ en $\hat u_2(x,y)$ apart oplossen.
+
+\subsubsection{Gekoppeld}
+De aanname dat de frequenties elkaar niet kunnen beïnvloeden is echter niet juist. De permeabiliteit $\mu$ hangt namelijk af van $\text{grad} \; u$. In werkelijkheid is dit systeem dus gekoppeld. Hoe reken je tegelijkertijd meerdere frequenties door? Dit roept de vraag op of het dan toch niet beter is om het probleem direct op te lossen.
+
+
 
 \end{document}
