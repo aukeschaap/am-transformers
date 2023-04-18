@@ -1,9 +1,5 @@
 
-path = "C:/Users/TUDelftSID/OneDrive - Delft University of Technology/Documenten/TUD/AM 1e jaar/Advanced Modelling/gmsh-4.11.1-Windows64-sdk/gmsh-4.11.1-Windows64-sdk/lib/gmsh.jl"
-#push!(LOAD_PATH, path)
-#using Gmsh
-include(path)
-
+using gmsh
 
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 1)
