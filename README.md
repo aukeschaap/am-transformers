@@ -16,3 +16,6 @@ https://github.com/gijswl/ee4375_fem_ta
 
 #### Gmsh repo
 https://github.com/JuliaFEM/Gmsh.jl
+
+#### Gmsh documentation 
+https://gmsh.info/doc/texinfo/gmsh.html#index-Command_002dline-options
