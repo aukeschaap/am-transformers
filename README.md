@@ -4,6 +4,9 @@ By Philip Soliman (4945255) and Auke Schaap (4457919).
 This is a project for the course WI4204 Advanced Modeling at the TU Delft, in combination with STEDIN Rotterdam. The project is supervised by Domenico Lahaye.
 
 
+> ⚠️ Make sure that `gmsh` is setup correctly if you are using Windows! Follow [this](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extended-lab-sessions/gmsh/Mesh-Generation-using-Gmsh.ipynb) guide by dr. Domenico Lahaye. The alternative is to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/about).
+
+
 ## Structure
 
 The project is separated in the following way:
