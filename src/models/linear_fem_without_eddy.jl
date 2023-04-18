@@ -12,7 +12,7 @@ include("../process.jl")
 include("../definitions/fem2d.jl")
 
 
-const MESH_LOCATION = "./geo/transformer_stedin.msh"
+const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
 
 
