@@ -7,6 +7,15 @@ the resulting linear system, Ku=f, for u gives the coefficients u_i of the bases
 sum that is A_z:
 
 A_z = sum_i{u_i*phi_i}.
+
+Arguments:
+- mshdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
+- sourceperelement: f evaluated at each element
+- reluctivityperelement: 1/mu evaluated at each element
+
+Returns:
+- K, stiffnes matrix
+- f, source function
 """
 function assemble_steadystate(mshdata, sourceperelement, reluctivityperelement)
     K = spzeros(Complex{Float64}, mshdata.nnodes, mshdata.nnodes)
