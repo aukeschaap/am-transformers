@@ -45,13 +45,13 @@ function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement
         f[nodes]        += f_loc;
         K[nodes, nodes] += K_loc;
 
-        # Handle the boundary conditions
-        bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
-        K[bnd_node_ids,:] .= 0;
-        K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
-        f[bnd_node_ids] .= 0;
-
     end
+
+     # Handle the boundary conditions
+     bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
+     K[bnd_node_ids,:] .= 0;
+     K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
+     f[bnd_node_ids] .= 0;
 
     return K, f
 
