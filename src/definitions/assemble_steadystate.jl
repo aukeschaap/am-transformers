@@ -15,13 +15,13 @@ sum that is A_z:
 A_z = sum_i{u_i*phi_i}.
 
 Arguments:
-- mshdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
-- sourceperelement: f evaluated at each element
-- reluctivityperelement: 1/mu evaluated at each element
+- mesh_hdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
+- sourceperelement: f evaluated at each element in the mesh
+- reluctivityperelement: 1/mu evaluated at each element in the mesh
 
 Returns:
 - K, stiffnes matrix
-- f, source function
+- f, source vector
 """
 function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement)
     K = spzeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
@@ -29,7 +29,7 @@ function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
-        # The x and y coordinates of the (triangular) mesh
+        # The x and y coordinates of the (triangular) element
         xs = [mesh_data.xnode[node] for node in nodes];
         ys = [mesh_data.ynode[node] for node in nodes];
         
@@ -45,6 +45,14 @@ function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement
         f[nodes]        += f_loc;
         K[nodes, nodes] += K_loc;
 
+        # Handle the boundary conditions
+        bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
+        K[bnd_node_ids,:] .= 0;
+        K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
+        f[bnd_node_ids] .= 0;
+
     end
+
     return K, f
+
 end
