@@ -19,7 +19,7 @@ Solving for u gives the coefficients u_i of the bases functions phi_i in the wei
 A_z = sum_i{u_i*phi_i}.
 
 Arguments:
-- mesh_hdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
+- mesh_data: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
 -conductivity_per_element: 1/mu evaluated at each element in the mesh
 
 Returns:
