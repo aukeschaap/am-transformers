@@ -47,45 +47,44 @@ Jp = Np * Ip / Awhv;
 Js = Ns * Is / Awlv;
 
 
-
+"""
 # Source current density J
-#  One term for each of the windings, with a positive and negative part
-#  Note the phase shift between the phases
-sourcefunction(group_id) = Jp * exp(1im * 2pi/3) * (-1 * (group_id==3) + 1 * (group_id==4)) + 
-                           Jp * (-1 * (group_id==5) + 1 * (group_id==6)) + 
-                           Jp * exp(-1im * 2pi/3) * (-1 * (group_id==7) + 1 * (group_id==8)) + 
-                           Js * exp(1im * 2pi/3) * (1 * (group_id==9) - 1 * (group_id==10)) +
-                           Js * (1 * (group_id==11) - 1 * (group_id==12)) + 
-                           Js * exp(-1im * 2pi/3) * (1 * (group_id==13) - 1 * (group_id==14));
-sourceperelement = map(sourcefunction, mshdata.e_group);
+
+One term for each of the windings, with a positive and negative part. Note the phase shift between
+the phases.
+"""
+function source_func(group_id)
+    Jp * exp(1im * 2pi/3) * (-1 * (group_id==3) + 1 * (group_id==4))
+    + Jp * (-1 * (group_id==5) + 1 * (group_id==6))
+    + Jp * exp(-1im * 2pi/3) * (-1 * (group_id==7) + 1 * (group_id==8))
+    + Js * exp(1im * 2pi/3) * (1 * (group_id==9) - 1 * (group_id==10))
+    + Js * (1 * (group_id==11) - 1 * (group_id==12))
+    + Js * exp(-1im * 2pi/3) * (1 * (group_id==13) - 1 * (group_id==14));
+end
+source_per_element = map(source_func, mshdata.e_group);
 
 # Relative permeability model
 mu0 = 4e-7 * pi;
 mur = 1000;       # Relative permeability of the core
-reluctivityfunction(group_id) = (1 / mu0) + (1/(mu0*mur) - 1/mu0) * (group_id == 2)
-reluctivityperelement = map(reluctivityfunction, mshdata.e_group);
+reluctivity_func(group_id) = (1 / mu0) + (1/(mu0*mur) - 1/mu0) * (group_id == 2)
+reluctivity_per_element = map(reluctivity_func, mshdata.e_group);
 
 # Conductivity
-conductivityfunction(group_id) = 0;
-conductivityperelement = map(conductivityfunction, mshdata.e_group);
+conductivity_func(group_id) = 0;
+conductivity_per_element = map(conductivity_func, mshdata.e_group);
+
 
 println("Assembling steady state...")
 
 # Calculate the vector potential
-K, f = assemble_steadystate(mshdata, sourceperelement, reluctivityperelement);
-
-# Handle the boundary conditions
-bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
-K[bnd_node_ids,:] .= 0;
-K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
-f[bnd_node_ids] .= 0;
+K, f = assemble_steadystate(mshdata, source_per_element, reluctivity_per_element);
 
 println("System complete. Solving...")
 u = K \ f;
 println("Done solving.")
 
 # Post-process for magnetic field and current density
-B, H, Wm, Jel = process(mshdata, u, sourceperelement, reluctivityperelement, conductivityperelement, omega);
+B, H, Wm, Jel = process(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element, omega);
 Bnorm = norm.(sqrt.(B[1].^2 + B[2].^2));
 
 
