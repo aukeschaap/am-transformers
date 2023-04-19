@@ -1,3 +1,9 @@
+
+include("../definitions/construct_fe.jl")
+include("../definitions/construct_Ke.jl")
+
+
+
 """
 # assemble_steadystate()
 
@@ -17,38 +23,28 @@ Returns:
 - K, stiffnes matrix
 - f, source function
 """
-function assemble_steadystate(mshdata, sourceperelement, reluctivityperelement)
-    K = spzeros(Complex{Float64}, mshdata.nnodes, mshdata.nnodes)
-    f = zeros(Complex{Float64}, mshdata.nnodes, 1)
+function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement)
+    K = spzeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
+    f = zeros(Complex{Float64}, mesh_data.nnodes, 1)
 
-    xnode = mshdata.xnode;
-    ynode = mshdata.ynode;
+    for (element_id, nodes) in enumerate(mesh_data.elements)
 
-    # Perform a loop over the elements
-    for (element_id, nodes) in enumerate(mshdata.elements)
-        # Retrieve global numbering of the local nodes of the current element
-        node1_id = nodes[1]; node2_id = nodes[2]; node3_id = nodes[3];
+        # The x and y coordinates of the (triangular) mesh
+        xs = [mesh_data.xnode[node] for node in nodes];
+        ys = [mesh_data.ynode[node] for node in nodes];
+        
+        # Compute the area of the current element
+        area = (xs[2] - xs[1])*(ys[3] - ys[1]) - (xs[3] - xs[1])*(ys[2] - ys[1]);
+        area = abs(area) / 2;
 
-        # Retrieve the x and y coordinates of the local nodes of the current element
-        xnode1 = xnode[node1_id]; xnode2 = xnode[node2_id]; xnode3 = xnode[node3_id];
-        ynode1 = ynode[node1_id]; ynode2 = ynode[node2_id]; ynode3 = ynode[node3_id];
-
-        # Compute surface area of the current element
-        x12 = xnode2 - xnode1; x13 = xnode3-xnode1;
-        y12 = ynode2 - ynode1; y13 = ynode3-ynode1;
-        area_id = x12*y13 - x13*y12; area_id = abs(area_id)/2
-
-        # Compute local vector contribution floc of the current element
-        floc = area_id/3*sourceperelement[element_id] * [1; 1; 1]
-
-        # Compute local matrix contribution Aloc of the current element
-        Emat = [[xnode1;xnode2;xnode3] [ynode1;ynode2;ynode3] [1;1;1]] \ UniformScaling(1.);
-        Emat[3,:] .= 0;
-        Bloc = area_id*reluctivityperelement[element_id]*(transpose(Emat)*Emat);
+        # Construct local contributions to f and K
+        f_loc = construct_fe(area, sourceperelement[element_id])
+        K_loc = construct_Ke(xs, ys, area, reluctivityperelement[element_id])
 
         # Add local contribution to f and K
-        f[nodes]       += floc;
-        K[nodes,nodes] += Bloc;
+        f[nodes]        += f_loc;
+        K[nodes, nodes] += K_loc;
 
-        return K, f
     end
+    return K, f
+end
