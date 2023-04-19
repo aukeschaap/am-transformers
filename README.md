@@ -35,3 +35,6 @@ https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extend
 
 #### Gmsh documentation 
 https://gmsh.info/doc/texinfo/gmsh.html#index-Command_002dline-options
+
+#### DifferentialEquations julia library
+https://docs.sciml.ai/DiffEqDocs/stable/examples/diffusion_implicit_heat_equation/ (time integration of diffusion equation using ODEproblem method)
