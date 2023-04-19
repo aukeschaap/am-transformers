@@ -23,18 +23,18 @@ Returns:
 - K, stiffnes matrix
 - f, source vector
 """
-function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement)
-    K = spzeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
+function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
+    K = zeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
     f = zeros(Complex{Float64}, mesh_data.nnodes, 1)
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
         # The x and y coordinates of the (triangular) element
-        xs = [mesh_data.xnode[node] for node in nodes];
-        ys = [mesh_data.ynode[node] for node in nodes];
+        xs(i) = mesh_data.xnode[nodes[i]];
+        ys(i) = mesh_data.ynode[nodes[i]];
         
         # Compute the area of the current element
-        area = (xs[2] - xs[1])*(ys[3] - ys[1]) - (xs[3] - xs[1])*(ys[2] - ys[1]);
+        area = (xs(2) - xs(1))*(ys(3) - ys(1)) - (xs(3) - xs(1))*(ys(2) - ys(1));
         area = abs(area) / 2;
 
         # Construct local contributions to f and K
@@ -47,12 +47,12 @@ function assemble_steadystate(mesh_data, sourceperelement, reluctivityperelement
 
     end
 
-     # Handle the boundary conditions
-     bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
-     K[bnd_node_ids,:] .= 0;
-     K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
-     f[bnd_node_ids] .= 0;
+    # Handle the boundary conditions
+    bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
+    K[bnd_node_ids,:] .= 0;
+    K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
+    f[bnd_node_ids] .= 0;
 
-    return K, f
+    return sparse(K), f
 
 end
