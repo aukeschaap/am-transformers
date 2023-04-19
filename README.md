@@ -19,15 +19,19 @@ The project is separated in the following way:
 # Useful links
 
 #### Project repo
-https://github.com/ziolai/finite_element_electrical_engineering
+https://github.com/ziolai/finite_element_electrical_engineering (project description)
+
+https://github.com/ziolai/finite_element_electrical_engineering/blob/main/lab-sessions/6-lab-session.ipynb (time integration, section 4)
 
 #### Repos of Gijs Lagerweij
-https://github.com/gijswl/ee4375_fem
+https://github.com/gijswl/ee4375_fem (general FEM)
 
-https://github.com/gijswl/ee4375_fem_ta
+https://github.com/gijswl/ee4375_fem_ta (distribution transformer)
 
 #### Gmsh repo
-https://github.com/JuliaFEM/Gmsh.jl
+https://github.com/JuliaFEM/Gmsh.jl (gmsh for julia)
+
+https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extended-lab-sessions/gmsh/Mesh-Generation-using-Gmsh.ipynb (gmsh for julia workaround + intro to gmsh)
 
 #### Gmsh documentation 
 https://gmsh.info/doc/texinfo/gmsh.html#index-Command_002dline-options
