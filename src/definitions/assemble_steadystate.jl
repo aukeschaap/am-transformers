@@ -46,7 +46,7 @@ function assemble_steadystate(mshdata, sourceperelement, reluctivityperelement)
         Emat[3,:] .= 0;
         Bloc = area_id*reluctivityperelement[element_id]*(transpose(Emat)*Emat);
 
-        # Add local contribution to f and A
+        # Add local contribution to f and K
         f[nodes]       += floc;
         K[nodes,nodes] += Bloc;
 
