@@ -79,10 +79,16 @@
 
 \makeatletter
 
+
+\declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={nobreak}]{problembox}
+
 \declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, mdframed={}]{thmbox}
 \declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={ rightline=false, topline=false, bottomline=false, }, qed=\qedsymbol ]{proofbox}
 \declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={ nobreak, rightline=false, topline=false, bottomline=false}]{infobox}
 
+\declaretheorem[style=problembox, name=Problem Definition]{problem}
+\declaretheorem[style=problembox, name=Weak Form]{weakform}
+\declaretheorem[style=infobox, name=Assumption]{assumption}
 
 \declaretheorem[style=thmbox, name=Definition]{definition}
 \declaretheorem[sibling=definition, style=thmbox, name=Corollary]{corollary}
