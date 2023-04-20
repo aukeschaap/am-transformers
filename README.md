@@ -23,6 +23,8 @@ https://github.com/ziolai/finite_element_electrical_engineering (project descrip
 
 https://github.com/ziolai/finite_element_electrical_engineering/blob/main/lab-sessions/6-lab-session.ipynb (time integration, section 4)
 
+https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extended-lab-sessions/julia/Julia%20for%20FEM%20-%20Ferrite.jl.ipynb (FE loop + fast malloc)
+
 #### Repos of Gijs Lagerweij
 https://github.com/gijswl/ee4375_fem (general FEM)
 
