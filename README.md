@@ -40,3 +40,6 @@ https://gmsh.info/doc/texinfo/gmsh.html#index-Command_002dline-options
 
 #### DifferentialEquations julia library
 https://docs.sciml.ai/DiffEqDocs/stable/examples/diffusion_implicit_heat_equation/ (time integration of diffusion equation using ODEproblem method)
+
+### Large sparse system in Julia
+https://discourse.julialang.org/t/how-to-construct-a-large-sparse-matrix/7241/2
