@@ -49,3 +49,27 @@
 \newcommand{\mininomen}[2][1]{{\let\thefootnote\relax%
 	\footnotetext{\begin{tabular}{*{#1}{@{\!}>{\centering\arraybackslash}p{1em}@{\;}p{\textwidth/#1-2em}}}%
 	#2\end{tabular}}}}
+
+
+
+% theorems
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{thmtools}
+\usepackage[framemethod=TikZ]{mdframed}
+\mdfsetup{skipabove=1em, skipbelow=1em, innertopmargin=5pt, innerbottommargin=6pt}
+
+\theoremstyle{definition}
+
+\makeatletter
+
+
+\declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={nobreak}]{problembox}
+
+\declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, mdframed={}]{thmbox}
+\declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={ rightline=false, topline=false, bottomline=false, }, qed=\qedsymbol ]{proofbox}
+\declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={ nobreak, rightline=false, topline=false, bottomline=false}]{infobox}
+
+\declaretheorem[style=problembox, name=Problem Definition]{problemdef}
+\declaretheorem[style=problembox, name=Weak Form]{weakform}
+\declaretheorem[style=infobox, name=Assumption]{assumption}
