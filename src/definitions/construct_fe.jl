@@ -9,6 +9,5 @@ Returns:
 - floc, local contribution to global source
 """
 function construct_fe(area, source)
-    floc = area/3 * source * [1; 1; 1]
-    return floc
+    return area/3 * source * [1; 1; 1]
 end

@@ -3,6 +3,26 @@ include("../definitions/construct_fe.jl")
 include("../definitions/construct_Ke.jl")
 
 
+mutable struct FastSparse
+    i_row::Vector{Int}
+    i_col::Vector{Int}
+    value::Vector{Complex{Float64}}
+    FastSparse(nelements::Int) = new(Vector{Int}(undef, 9*nelements), Vector{Int}(undef, 9*nelements), Vector{Complex{Float64}}(undef, 9*nelements))
+end
+
+
+function add(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float64})
+    @debug "add: " id nodes matrix
+    for (num, (index, element)) in enumerate(pairs(matrix))
+        (i, j) = Tuple(index)
+        @debug "    ($i, $j) @ ($((id-1)*9 + num)) = $element)"
+        fsp.i_row[(id-1)*9 + num] = nodes[i]
+        fsp.i_col[(id-1)*9 + num] = nodes[j]
+        fsp.value[(id-1)*9 + num] = element
+    end
+end
+
+
 
 """
 # assemble_steadystate()
@@ -24,8 +44,9 @@ Returns:
 - f, source vector
 """
 function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
-    K = zeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
     f = zeros(Complex{Float64}, mesh_data.nnodes, 1)
+
+    fsp = FastSparse(mesh_data.nelements)
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
@@ -41,11 +62,14 @@ function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
         f_loc = construct_fe(area, sourceperelement[element_id])
         K_loc = construct_Ke(xs, ys, area, reluctivityperelement[element_id])
 
+        add(fsp, element_id, nodes, K_loc)
+
         # Add local contribution to f and K
         f[nodes]        += f_loc;
-        K[nodes, nodes] += K_loc;
 
     end
+
+    K = sparse(fsp.i_row, fsp.i_col, fsp.value, mesh_data.nnodes, mesh_data.nnodes, +)
 
     # Handle the boundary conditions
     bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
@@ -53,6 +77,6 @@ function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
     K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
     f[bnd_node_ids] .= 0;
 
-    return sparse(K), f
+    return K, f
 
 end
