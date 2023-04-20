@@ -25,6 +25,7 @@ Manifest.toml
 
 # Latex builds
 report/latex/build/
+presentation/build
 
 # Local files
 .local
