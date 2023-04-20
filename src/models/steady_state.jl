@@ -9,7 +9,7 @@ using BenchmarkTools
 include("../constants.jl")
 include("../get_mesh_data.jl")
 include("../process.jl")
-include("../definitions/assemble_steadystate.jl")
+include("../definitions/assemble_Kf.jl")
 
 
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
