@@ -1,13 +1,5 @@
 \documentclass[aspectratio=43]{beamer}
 \input{preamble.tex}
-
-\title[]{Digital Twin of Transformer of the Future}
-\institute[]{Delft University of Technology, The Netherlands}
-\author{Auke Schaap \and Philip Soliman}
-\date{}
-
-\begin{document}
-
 %% Useful example slides 
 %\input{sections/examples/Introslide.tex}
 % \input{sections/examples/Example1.tex}
@@ -19,10 +11,260 @@
 % \input{sections/examples/bibslide.tex}
 
 %% Our presentation
-\input{sections/title.tex}
-% \input{sections/intro.tex}
-\input{sections/stedin_and_transformers.tex}
-\input{sections/bibslide.tex}
 
+\title[]{Improving Digital Twin of STEDIN Transformer}
+\institute[]{Delft University of Technology, The Netherlands}
+\author{Auke Schaap \and Philip Soliman}
+\date{}
+
+
+\begin{document}
+\section{Introduction}
+{
+\setbeamertemplate{footline}{\usebeamertemplate*{minimal footline}}
+\frame{\titlepage}
+}
+
+\section{Stedin & Transformers}
+\begin{frame}[fragile]{Transformer} % some commands, e.g. \verb require [fragile]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/transformer.png}
+    \label{fig:my_label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Distribution grid} % some commands, e.g. \verb require [fragile]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/stedin_transformers_build_year.png}
+    \label{fig:my_label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Distribution grid} % some commands, e.g. \verb require [fragile]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/distribution grid.png}
+    \label{fig:my_label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Transformer Core} % some commands, e.g. \verb require [fragile]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/transformercore.png}
+    \label{fig:my_label}
+\end{figure}
+\end{frame}
+
+\section{Derivation}
+\begin{frame}{Derivation}
+The Maxwell equations are given by
+\begin{align*}
+    \nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t}, \\
+    \nabla \times \mathbf{H} &=  \mathbf{J} + \frac{\partial \mathbf{D}}{\partial t}, \\
+    \nabla \cdot \mathbf{B} &= 0, \\
+    \nabla \cdot \mathbf{D} &= \rho,
+\end{align*}
+where
+\begin{itemize}
+    \item $\mathbf{E}, [V/m]$ is the electric field intensity,
+    \item $\mathbf{H}, [A/m]$ is the magnetic field intensity,
+    \item $\mathbf{J}, [A/m^2]$ is the current density,
+    \item $\mathbf{B}, [T]$ is the magnetic flux density,
+    \item $\mathbf{D}, [C/m^2]$ is the electric flux density,
+    \item $\rho, [C/m^3]$ is the free charge density.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Derivation}
+Using the potential formulation,
+\begin{align*}
+    \mathbf{E} &= -\nabla \varphi -\frac{\partial \mathbf{A}}{\partial t}, \\
+    \mathbf{B} &= \nabla \times \mathbf A,
+\end{align*}
+we can formulate a system that we can solve.
+
+\end{frame}
+
+\begin{frame}{Derivation}
+
+\begin{assumption}
+    The permittivity of vacuum $\epsilon_0$ is very small, $(\mathcal{O}(10^{-12}))$, and for all materials in this research $\epsilon_r < 10$, so $\epsilon$ can be neclegted. Therefore, $\mathbf{D} = 0$ and can be neglected.
+\end{assumption}
+
+\begin{assumption}
+    We assume that the contribution of the electrostatic field $\varphi$ is negligble compared to the contribution of the potential field $\mathbf A$. That is, $\nabla \varphi = 0$, which implies that $\mathbf{E} = -\frac{\partial \mathbf{A}}{\partial t}$.
+\end{assumption}
+
+\begin{assumption}
+    The flow of current is oriented along the $z$ axis, and the geometry is in the $xy$ plane. That is, $\mathbf{A} = (0, 0, A_z)$ and $\mathbf{J_e} = (0, 0, J_z)$. This implies $\nabla \times \mathbf A = \nabla A_z$.
+\end{assumption}
+\end{frame}
+
+
+
+\section{Definition}
+\begin{frame}[fragile]{Definition} % some commands, e.g. \verb require [fragile]    
+    \begin{problemdef}
+        Find $A_z$ in the system
+        \begin{equation}
+            \sigma\frac{\partial A_z}{\partial t} = \nabla \times \left[\frac{1}{\mu}\nabla A_z\right] + J_z,
+        \end{equation}
+        where
+        \begin{itemize}
+            \item $A_z$ is the current density in the $z$ direction,
+            \item $\mu$ is the permeability of the core,
+            \item $J_z$ is the imposed source current density,
+            \item $\sigma$ is the conductivity of the core.
+        \end{itemize}
+        From this point onwards, this will be formulated as
+        \begin{equation}
+            \sigma\dot u = \nabla \times \left[\frac{1}{\mu}\nabla u\right] + f.
+        \end{equation}
+    \end{problemdef}
+\end{frame}
+
+
+\section{Approaches}
+\begin{frame}[fragile]{Approaches} % some commands, e.g. \verb require [fragile]
+
+There are a couple of situations we could look at
+\begin{itemize}
+    \item Steady state ($\omega = 0$)
+    \item Single frequency ($\omega = 50$)
+    \item Multi frequency
+    \begin{itemize}
+        \item Linear
+        \item Nonlinearities
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Approach I: Steady state} % some commands, e.g. \verb require [fragile]
+
+
+\begin{discretization}
+    \begin{equation*}
+        0 = \frac{1}{\mu}K u + f,
+    \end{equation*}
+    where
+    \begin{itemize}
+        \item $u$ is $A_z$, the solution.
+        \item $M$ is the mass matrix,
+        \item $K$ is the stiffness matrix,
+        \item $f$ is the source term, given by $J_z$,
+    \end{itemize}
+\end{discretization}
+\end{frame}
+
+\begin{frame}[fragile]{Steady State Solution} % some commands, e.g. \verb require [fragile]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/steady_state_cropped.png}
+    \label{fig:my_label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Approach II: Single frequency} % some commands, e.g. \verb require [fragile]
+
+We assume that there is only one frequency at play, thus there is separation of variables.
+\begin{align*}
+    u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}
+\end{align*}
+
+\begin{discretization}
+    \begin{equation*}
+        \sigma \omega j M u  = \frac{1}{\mu}K u + f,
+    \end{equation*}
+    where
+    \begin{itemize}
+        \item $u$ is $A_z$, the solution.
+        \item $M$ is the mass matrix,
+        \item $K$ is the stiffness matrix,
+        \item $f$ is the source term, given by $J_z$,
+    \end{itemize}
+\end{discretization}
+\end{frame}
+
+% \begin{frame}[fragile]{Approach II: Single frequency}
+
+% \begin{discretization}
+%  \[A_z = \hat{A}_z(x,y)e^{i\omega t}, \]
+
+% \[ -\nabla \times \left[\frac{1}{\mu}\nabla A_z\right] + i\sigma\omega A_z= \mathbf J_0, \]   
+
+% \[
+% \left(-K+i\omega M\right)u = f
+% \]
+% \end{discretization}
+% \end{frame}
+
+
+\begin{frame}[fragile]{Approach III: Multi-frequency} % some commands, e.g. \verb require [fragile]
+\begin{discretization}
+    \begin{equation*}
+        \sigma M \dot u = \frac{1}{\mu}K u + f,
+    \end{equation*}
+    where
+    \begin{itemize}
+        \item $u$ is $A_z$, the solution.
+        \item $M$ is the mass matrix,
+        \item $K$ is the stiffness matrix,
+        \item $f$ is the source term, given by $J_z$,
+    \end{itemize}
+\end{discretization}
+We simply solve this system for each frequency and add up the result. 
+\end{frame}
+
+\begin{frame}[fragile]{BH curve \& non-linear materials}
+  \begin{columns}[onlytextwidth]
+    \begin{column}{.5\textwidth}
+    Steady state solution assuming linear material
+        \begin{figure}
+            \centering
+            \includegraphics[width=1\textwidth]   {figures/steady_state_cropped.png}
+            \label{fig:my_label}
+        \end{figure}
+    \end{column}
+    \begin{column}{.5\textwidth}
+    \quad BH curve. $\mu = \mu(||\nabla B||)$ 
+        \begin{figure}
+            \centering
+            \includegraphics[width=1\textwidth]{figures/BH curve.png}
+            \label{fig:my_label}
+        \end{figure}
+    Super Position is not allowed anymore!
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Further work} % some commands, e.g. \verb require [fragile]
+\begin{itemize}
+    \item Check superposition assumption
+    \item Time stepping
+    \item Optimizations
+    \item Hybrid mesh for boundary layers
+    
+    
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Questions?} % some commands, e.g. \verb require [fragile]
+
+Auke Schaap, a.c.schaap@student.tudelft.nl
+
+Philip Soliman, p.m.soliman@student.tudelft.nl
+
+
+\end{frame}
+
+
+\end{document}
 
 \end{document}
