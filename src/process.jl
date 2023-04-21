@@ -6,6 +6,7 @@ Post processing.
 function process(mshdata, u, sourceperelement, reluctivityperelement, conductivityperelement, omega)
     Bx = zeros(Complex{Float64}, mshdata.nelements);
     By = zeros(Complex{Float64}, mshdata.nelements);
+    Bz = zeros(Complex{Float64}, mshdata.nelements);
     
     Jel = zeros(mshdata.nelements);
     
@@ -44,5 +45,5 @@ function process(mshdata, u, sourceperelement, reluctivityperelement, conductivi
     # Energy is 0.5 * dot(B, H)
     Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
     
-    return (Bx,By), (Hx, Hy), Wm, Jel;
+    return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
 end

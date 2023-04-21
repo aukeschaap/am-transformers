@@ -11,7 +11,7 @@ mutable struct FastSparse
 end
 
 
-function add(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float64})
+function add!(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float64})
     @debug "add: " id nodes matrix
     for (num, (index, element)) in enumerate(pairs(matrix))
         (i, j) = Tuple(index)
@@ -20,6 +20,7 @@ function add(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float6
         fsp.i_col[(id-1)*9 + num] = nodes[j]
         fsp.value[(id-1)*9 + num] = element
     end
+    return nothing
 end
 
 
@@ -43,10 +44,9 @@ Returns:
 - K, stiffnes matrix
 - f, source vector
 """
-function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
-    f = zeros(Complex{Float64}, mesh_data.nnodes, 1)
-
-    fsp = FastSparse(mesh_data.nelements)
+function assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
+    f = zeros(Complex{Float64}, mesh_data.nnodes, 1);
+    fsp = FastSparse(mesh_data.nelements);
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
@@ -59,24 +59,23 @@ function assemble_Kf(mesh_data, sourceperelement, reluctivityperelement)
         area = abs(area) / 2;
 
         # Construct local contributions to f and K
-        f_loc = construct_fe(area, sourceperelement[element_id])
-        K_loc = construct_Ke(xs, ys, area, reluctivityperelement[element_id])
+        f_loc = construct_fe(area, source_per_element[element_id]);
+        K_loc = construct_Ke(xs, ys, area, reluctivity_per_element[element_id]);
 
-        add(fsp, element_id, nodes, K_loc)
+        add!(fsp, element_id, nodes, K_loc);
 
         # Add local contribution to f and K
-        f[nodes]        += f_loc;
+        f[nodes] += f_loc;
 
     end
 
-    K = sparse(fsp.i_row, fsp.i_col, fsp.value, mesh_data.nnodes, mesh_data.nnodes, +)
+    K = sparse(fsp.i_row, fsp.i_col, fsp.value, mesh_data.nnodes, mesh_data.nnodes, +);
 
     # Handle the boundary conditions
     bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
     K[bnd_node_ids,:] .= 0;
-    K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
+    K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)));
     f[bnd_node_ids] .= 0;
 
     return K, f
-
 end

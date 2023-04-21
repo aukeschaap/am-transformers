@@ -1,3 +1,8 @@
-function linear_reluctivity(group_id)
-    (1 / mu0) + (1/(mu0*mur) - 1/mu0) * (group_id == 2)
+
+"""
+Linear reluctivity of the different materials.
+
+"""
+function linear_reluctivity(μ_0, μ_r, id)
+    (1 / μ_0) + (1/(μ_0*μ_r) - 1/μ_0) * (id == 2)
 end
