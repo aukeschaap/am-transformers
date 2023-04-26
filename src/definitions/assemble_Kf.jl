@@ -62,9 +62,9 @@ function assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
         f_loc = construct_fe(area, source_per_element[element_id]);
         K_loc = construct_Ke(xs, ys, area, reluctivity_per_element[element_id]);
 
+        # Add local contribution to K & f
         add!(fsp, element_id, nodes, K_loc);
 
-        # Add local contribution to f and K
         f[nodes] += f_loc;
 
     end

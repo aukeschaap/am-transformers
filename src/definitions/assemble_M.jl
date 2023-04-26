@@ -2,6 +2,26 @@
 include("../definitions/construct_Me.jl")
 
 
+mutable struct FastSparse
+    i_row::Vector{Int}
+    i_col::Vector{Int}
+    value::Vector{Complex{Float64}}
+    FastSparse(nelements::Int) = new(Vector{Int}(undef, 9*nelements), Vector{Int}(undef, 9*nelements), Vector{Complex{Float64}}(undef, 9*nelements))
+end
+
+
+function add!(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float64})
+    @debug "add: " id nodes matrix
+    for (num, (index, element)) in enumerate(pairs(matrix))
+        (i, j) = Tuple(index)
+        @debug "    ($i, $j) @ ($((id-1)*9 + num)) = $element)"
+        fsp.i_row[(id-1)*9 + num] = nodes[i]
+        fsp.i_col[(id-1)*9 + num] = nodes[j]
+        fsp.value[(id-1)*9 + num] = element
+    end
+    return nothing
+end
+
 
 """
 # construct_M()
@@ -27,6 +47,7 @@ Returns:
 """
 function construct_M(mesh_data, conductivity_per_element)
     M = spzeros(Complex{Float64}, mesh_data.nnodes, mesh_data.nnodes)
+    fsp = FastSparse(mesh_data.nelements);
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
@@ -42,15 +63,15 @@ function construct_M(mesh_data, conductivity_per_element)
         M_loc = construct_Me(area, conductivity_per_element[element_id])
 
         # Add local contribution to M
-        M[nodes, nodes] += M_loc;
-
-        # Handle the boundary conditions
-        bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
-        M[bnd_node_ids,:] .= 0;
-        M[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)))
-
+        add!(fsp, element_id, nodes, M_loc);
     end
 
+    M = sparse(fsp.i_row, fsp.i_col, fsp.value, mesh_data.nnodes, mesh_data.nnodes, +);
+
+    # Handle the boundary conditions
+    bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
+    M[bnd_node_ids,:] .= 0;
+    M[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)));
     return M
 
 end
