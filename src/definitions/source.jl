@@ -2,11 +2,15 @@
 """
 # Source current density J
 
-One term for each of the windings, with a positive and negative part. Note the phase shift between
-the phases. The ids refer to the different physical groups the windings belong to.
+One term for each of the windings, with a positive and negative part. Note the typical three phase current:
+-2*pi/3, 0 , 2*pi/3. The ids refer to the different (physical) groups the windings belong to.
 
 - Lower voltage windings: group 3 up to and including 8
 - High voltage windings: group 9 up to and including 14
+
+Furthermore, 
+- Lower voltage windings: even/odd ids represent current flowing into/out of the plane
+- Higher voltage windings: even/odd ids represent current flowing out of/into the plane
 
 Arguments:
 - Jp: Primary current density.
