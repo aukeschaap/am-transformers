@@ -18,28 +18,44 @@ The project is separated in the following way:
 
 # Useful links
 
-#### Project repo
+### Project repo
 https://github.com/ziolai/finite_element_electrical_engineering (project description)
 
 https://github.com/ziolai/finite_element_electrical_engineering/blob/main/lab-sessions/6-lab-session.ipynb (time integration, section 4)
 
 https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extended-lab-sessions/julia/Julia%20for%20FEM%20-%20Ferrite.jl.ipynb (FE loop + fast malloc)
 
-#### Repos of Gijs Lagerweij
+### Repos of Gijs Lagerweij
 https://github.com/gijswl/ee4375_fem (general FEM)
 
 https://github.com/gijswl/ee4375_fem_ta (distribution transformer)
 
-#### Gmsh repo
+### Gmsh repo
 https://github.com/JuliaFEM/Gmsh.jl (gmsh for julia)
 
 https://github.com/ziolai/finite_element_electrical_engineering/blob/main/extended-lab-sessions/gmsh/Mesh-Generation-using-Gmsh.ipynb (gmsh for julia workaround + intro to gmsh)
 
-#### Gmsh documentation 
+### Gmsh documentation 
 https://gmsh.info/doc/texinfo/gmsh.html#index-Command_002dline-options
 
-#### DifferentialEquations julia library
+### DifferentialEquations julia library
 https://docs.sciml.ai/DiffEqDocs/stable/examples/diffusion_implicit_heat_equation/ (time integration of diffusion equation using ODEproblem method)
 
 ### Large sparse system in Julia
 https://discourse.julialang.org/t/how-to-construct-a-large-sparse-matrix/7241/2
+
+### GPU
+https://www.intel.com/content/www/us/en/developer/articles/technical/vs-code-wsl2-and-oneapi-cross-platform-development.html (guide to install oneAPI)
+
+https://juliagpu.org/
+
+https://github.com/JuliaGPU/oneAPI.jl (oneAPI julia package)
+
+
+https://github.com/intel/compute-runtime (required, including the right driver)
+
+https://github.com/intel/compute-runtime/blob/master/WSL.md (info regarding wsl)
+
+https://www.intel.com/content/www/us/en/download/19344/intel-graphics-windows-dch-drivers.html (example link for right drivers, actual link is located in wsl.md)
+
+https://github.com/SciML/DiffEqGPU.jl (diff eq package for gpu)
