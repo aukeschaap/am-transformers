@@ -5,7 +5,7 @@ catch
     using gmsh
 end
 
-include("constants.jl")
+include("definitions/constants.jl")
 
 
 gmsh.initialize()
