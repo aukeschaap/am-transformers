@@ -1,10 +1,10 @@
 
 """Save result"""
-function save(file_name, mshdata, u, B, H, Wm, Jel)
+function save(file_name, mesh_data, u, B, H, Wm, Jel)
 
     # Define nodes (points) and elements (cells)
-    points = [mshdata.xnode mshdata.ynode]';
-    cells = [MeshCell(VTKCellTypes.VTK_TRIANGLE, el) for el in mshdata.elements];
+    points = [mesh_data.xnode mesh_data.ynode]';
+    cells = [MeshCell(VTKCellTypes.VTK_TRIANGLE, el) for el in mesh_data.elements];
 
     # Create VTK file structure using nodes and elements
     vtkfile = vtk_grid(string(OUTPUT_LOCATION, file_name), points, cells);

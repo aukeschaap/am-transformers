@@ -3,20 +3,20 @@
 """
 Post processing.
 """
-function process(mshdata, u, sourceperelement, reluctivityperelement, conductivityperelement, omega)
-    Bx = zeros(Complex{Float64}, mshdata.nelements);
-    By = zeros(Complex{Float64}, mshdata.nelements);
-    Bz = zeros(Complex{Float64}, mshdata.nelements);
+function process(mesh_data, u, sourceperelement, reluctivityperelement, conductivityperelement, omega)
+    Bx = zeros(Complex{Float64}, mesh_data.nelements);
+    By = zeros(Complex{Float64}, mesh_data.nelements);
+    Bz = zeros(Complex{Float64}, mesh_data.nelements);
     
-    Jel = zeros(mshdata.nelements);
+    Jel = zeros(mesh_data.nelements);
     
     # Perform a loop over the elements
-    for (element_id, nodes) in enumerate(mshdata.elements)
+    for (element_id, nodes) in enumerate(mesh_data.elements)
         # Retrieve global numbering of the local nodes of the current element
         node1_id = nodes[1]; node2_id = nodes[2]; node3_id = nodes[3];
         
         # Get x and y coordinates of the three nodes
-        xnode = mshdata.xnode; ynode = mshdata.ynode;
+        xnode = mesh_data.xnode; ynode = mesh_data.ynode;
         xnode1 = xnode[node1_id]; xnode2 = xnode[node2_id]; xnode3 = xnode[node3_id];
         ynode1 = ynode[node1_id]; ynode2 = ynode[node2_id]; ynode3 = ynode[node3_id];
 

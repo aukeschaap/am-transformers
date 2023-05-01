@@ -4,23 +4,23 @@
 Constructs the components of the B-field given the solution vector, u.
 
 Arguments:
-- mshdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
+- mesh_data: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
 - u: solution vector
 
 Returns:
 - Bx, By, Bz: x-, y- and z-components of the B-field. 
 """
-function solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element)
-    Bx = zeros(Complex{Float64}, mshdata.nelements);
-    By = zeros(Complex{Float64}, mshdata.nelements);
-    Bz = zeros(Complex{Float64}, mshdata.nelements);
-    Jel = zeros(mshdata.nelements);
+function solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element)
+    Bx = zeros(Complex{Float64}, mesh_data.nelements);
+    By = zeros(Complex{Float64}, mesh_data.nelements);
+    Bz = zeros(Complex{Float64}, mesh_data.nelements);
+    Jel = zeros(mesh_data.nelements);
 
-    for (element_id, nodes) in enumerate(mshdata.elements)
+    for (element_id, nodes) in enumerate(mesh_data.elements)
 
         # nodal coordinates
-        xs(i) = mesh_data.xnode[nodes[i]];
-        ys(i) = mesh_data.ynode[nodes[i]];
+        xs(i) = MeshData.xnode[nodes[i]];
+        ys(i) = MeshData.ynode[nodes[i]];
 
         # solution coefficients
         c = u[nodes(1:3)];

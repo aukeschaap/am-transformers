@@ -32,7 +32,7 @@ function main()
 
     # Build mesh
     gmsh.open(MESH_LOCATION)
-    mshdata = get_mesh_data();
+    mesh_data = get_mesh_data();
     println("\nMesh built.")
 
 
@@ -40,15 +40,15 @@ function main()
     print("Evaluating parameters on the elements... ")
     source_per_element = map(
         id -> source(Jp, Js, id),
-        mshdata.e_group
+        mesh_data.e_group
     );
     reluctivity_per_element = map(
         id -> linear_reluctivity(μ_0, μ_r, id),
-        mshdata.e_group
+        mesh_data.e_group
     );
     conductivity_per_element = map(
         id -> conductivity(id),
-        mshdata.e_group
+        mesh_data.e_group
     );
     println("Done.")
 
@@ -57,7 +57,7 @@ function main()
     println("Linear system:")
     print("  ▸ Constructing K and f... \r")
     K, f = assemble_Kf(
-        mshdata,
+        mesh_data,
         source_per_element,
         reluctivity_per_element,
     );
@@ -71,11 +71,11 @@ function main()
 
 
     # Post processing
-    B, H, Wm, Jel = process(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element, ω);
+    B, H, Wm, Jel = process(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element, ω);
 
     save(
         "steadystate3.vtu",
-        mshdata, u, B, H, Wm, Jel
+        mesh_data, u, B, H, Wm, Jel
     )
 
 end

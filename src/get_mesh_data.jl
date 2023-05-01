@@ -3,15 +3,15 @@ gmsh.finalize()
 gmsh.initialize()
 
 
-# mesh_data struct
-#  saves the nodes and elements of a gmsh geometry, for easy passing around in functions
-struct mesh_data
+"""
+Struct containing the nodes and elements of a gmsh geometry, for easy parameter passing.
+"""
+struct MeshData
     nnodes  # number of nodes
     xnode   # array of x coordinates
     ynode   # array of y coordinates
     
     nelements   # number of elements
-    #element_connectivity  # array of connectivity for each element
     e_group     # array containing the physical group number of each element
     elements    # <new addition> more conveniently structured connectivity array
 end
@@ -20,9 +20,12 @@ end
 """
 # `get_mesh_data()`
 
-Loads nodes, elements, and element physical groups from gmsh and stores them in a mesh_data struct
+Loads nodes, elements, and element physical groups from gmsh and stores them in a `MeshData` struct.
+
+Returns:
+- The `MeshData` struct
 """
-function get_mesh_data()
+function get_mesh_data() :: MeshData
     #..2/11 Get and sort the mesh nodes
     #..Observe that although the mesh is two-dimensional,
     #..the z-coordinate that is equal to zero is stored as well.
@@ -119,5 +122,5 @@ function get_mesh_data()
         end
     end
     
-    return mesh_data(nnodes, xnode, ynode, nelements, e_group, elements)
+    return MeshData(nnodes, xnode, ynode, nelements, e_group, elements)
 end

@@ -30,34 +30,34 @@ function main()
 
     # Build mesh
     gmsh.open(MESH_LOCATION)
-    mshdata = get_mesh_data();
+    mesh_data = get_mesh_data();
     println("\nMesh built.")
 
     # Calculate source, reluctivity and conductivity
     print("Evaluating parameters on the elements...")
     source_per_element = map(
         id -> source(Jp, Js, id),
-        mshdata.e_group
+        mesh_data.e_group
     );
 
     reluctivity_per_element = map(
         id -> linear_reluctivity(μ_0, μ_r, id),
-        mshdata.e_group
+        mesh_data.e_group
     );
 
     conductivity_per_element = map(
         id -> conductivity(id),
-        mshdata.e_group
+        mesh_data.e_group
     );
     println("Done.")
 
     # Assemble linear system
     println("Linear system:")
     print("  ▸ Constructing K and f...\r")
-    K, f = assemble_Kf(mshdata,source_per_element,reluctivity_per_element)
+    K, f = assemble_Kf(mesh_data,source_per_element,reluctivity_per_element)
     println("  ✓ Constructed K and f    ")
     print("  ▸ Constructing M...\r")
-    M = assemble_M(mshdata, conductivity_per_element)
+    M = assemble_M(mesh_data, conductivity_per_element)
     println("  ✓ Constructed M    ")
 
 
@@ -65,11 +65,11 @@ function main()
     # etc...
 
 
-    B, H, Wm, Jel = solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element);
+    B, H, Wm, Jel = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element);
 
     save(
         "transient1.vtu",
-        mshdata, u, B, H, Wm, Jel
+        mesh_data, u, B, H, Wm, Jel
     )
 
 end
