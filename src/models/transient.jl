@@ -8,16 +8,24 @@ end
 
 using LinearAlgebra, SparseArrays, WriteVTK, BenchmarkTools
 using Logging
+
+include("../FastSparse.jl")
+
 include("../constants.jl")
 include("../get_mesh_data.jl")
-include("../process.jl")
+include("../utils/process.jl")
+include("../utils/save.jl")
+include("../utils/result.jl")
+
 include("../definitions/general.jl")
 include("../definitions/assemble_Kf.jl")
 include("../definitions/assemble_M.jl")
-include("../definitions/assemble_solution.jl")
+
 
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
+
+
 gmsh.open(MESH_LOCATION)
 mshdata = get_mesh_data();
 
@@ -65,5 +73,9 @@ M = assemble_M(mshdata, conductivity_per_element)
 println("  ✓ Constructed M    ")
 
 
-B, H, Wm, Jel = assemble_solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element);
-Bnorm = norm.(sqrt.(B[1].^2 + B[2].^2));
+B, H, Wm, Jel = solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element);
+
+save(
+    "transient1.vtu",
+    mshdata, u, B, H, Wm, Jel
+)

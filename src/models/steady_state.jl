@@ -12,11 +12,17 @@ using Logging
 using WriteVTK
 using BenchmarkTools
 
+include("../FastSparse.jl")
+
 include("../constants.jl")
 include("../get_mesh_data.jl")
-include("../process.jl")
-include("../definitions/assemble_Kf.jl")
+include("../utils/process.jl")
+include("../utils/save.jl")
+include("../utils/result.jl")
+
 include("../definitions/general.jl")
+include("../definitions/assemble_Kf.jl")
+
 
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
@@ -88,35 +94,12 @@ function main()
 
 
     # Post processing
-    post(u, mshdata, source_per_element, reluctivity_per_element, conductivity_per_element, ω)
-
-end
-
-
-
-function post(u, mshdata, source_per_element, reluctivity_per_element, conductivity_per_element, ω)
-
-    # Post-process for magnetic field and current density
     B, H, Wm, Jel = process(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element, ω);
 
-    # Define nodes (points) and elements (cells)
-    points = [mshdata.xnode mshdata.ynode]';
-    cells = [MeshCell(VTKCellTypes.VTK_TRIANGLE, el) for el in mshdata.elements];
-
-    # Create VTK file structure using nodes and elements
-    vtkfile = vtk_grid(string(OUTPUT_LOCATION, "steadystate1.vtu"), points, cells);
-
-    # Store data in the VTK file
-    vtkfile["Az", VTKPointData()]   = norm.(u);
-    vtkfile["imA", VTKPointData()]  = imag.(u);
-    vtkfile["Bnorm", VTKCellData()] = norm.(sqrt.(B[1].^2 + B[2].^2));
-    vtkfile["B_vec", VTKCellData()] = real.(B)
-    vtkfile["Jel", VTKCellData()]   = Jel;
-
-    # Save the file
-    print("Saving result in a file...")
-    outfiles = vtk_save(vtkfile);
-    println(" Done.")
+    save(
+        "steadystate2.vtu",
+        mshdata, u, B, H, Wm, Jel
+    )
 
 end
 

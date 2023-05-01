@@ -1,29 +1,5 @@
 
-include("../definitions/construct_fe.jl")
-include("../definitions/construct_Ke.jl")
-
-
-mutable struct FastSparse
-    i_row::Vector{Int}
-    i_col::Vector{Int}
-    value::Vector{Complex{Float64}}
-    FastSparse(nelements::Int) = new(Vector{Int}(undef, 9*nelements), Vector{Int}(undef, 9*nelements), Vector{Complex{Float64}}(undef, 9*nelements))
-end
-
-
-function add!(fsp::FastSparse, id::Int, nodes::Vector{Int}, matrix::Matrix{Float64})
-    @debug "add: " id nodes matrix
-    for (num, (index, element)) in enumerate(pairs(matrix))
-        (i, j) = Tuple(index)
-        @debug "    ($i, $j) @ ($((id-1)*9 + num)) = $element)"
-        fsp.i_row[(id-1)*9 + num] = nodes[i]
-        fsp.i_col[(id-1)*9 + num] = nodes[j]
-        fsp.value[(id-1)*9 + num] = element
-    end
-    return nothing
-end
-
-
+using .FastSparse
 
 """
 # assemble_steadystate()
@@ -36,7 +12,7 @@ sum that is A_z:
 A_z = sum_i{u_i*phi_i}.
 
 Arguments:
-- mesh_hdata: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
+- mesh_data: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
 - sourceperelement: f evaluated at each element in the mesh
 - reluctivityperelement: 1/mu evaluated at each element in the mesh
 
@@ -46,7 +22,7 @@ Returns:
 """
 function assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
     f = zeros(Complex{Float64}, mesh_data.nnodes, 1);
-    fsp = FastSparse(mesh_data.nelements);
+    fsp = FastSparseMatrix(mesh_data.nelements);
 
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
@@ -78,4 +54,43 @@ function assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
     f[bnd_node_ids] .= 0;
 
     return K, f
+end
+
+
+"""
+Constructs local contribution to stiffnes matrix K on element e
+
+Arguments:
+- xs/ys: contain nodal x- and y-coordinates of the current element
+- area: area of the current element
+- reluctivity: 1/mu (with mu being the permeabality) evaluated on the element
+
+Returns:
+- Bloc, local contribution to stiffnes matrix
+"""
+function construct_Ke(xs, ys, area, reluctivity)
+    Emat = Matrix{Float64}(undef, 3, 3);
+    Emat[:,1] = xs(1:3)
+    Emat[:,2] = ys(1:3)
+    Emat[:,3] .= 1
+    Emat \= UniformScaling(1.);
+    Emat[3,:] .= 0;
+    return area*reluctivity*(transpose(Emat)*Emat);
+end
+
+
+
+"""
+Constructs local contribution to source f on element e
+
+Arguments:
+- area: area of the element
+- source_e: 1/u on evaluated on the element
+
+Returns:
+- floc, local contribution to global source
+"""
+function construct_fe(area, source)
+    fe = area/3 * source
+    return [fe; fe; fe;]
 end

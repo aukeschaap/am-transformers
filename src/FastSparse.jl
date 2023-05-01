@@ -32,5 +32,4 @@ function add!(fsp::FastSparseMatrix, id::Int, nodes::Vector{Int}, matrix::Matrix
     return nothing
 end
 
-
-end
+end # module FastSparse

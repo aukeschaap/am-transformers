@@ -1,8 +1,6 @@
 
 using .FastSparse
 
-include("../definitions/construct_Me.jl")
-
 
 
 """
@@ -22,7 +20,7 @@ A_z = sum_i{u_i*phi_i}.
 
 Arguments:
 - mesh_data: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
--conductivity_per_element: 1/mu evaluated at each element in the mesh
+- conductivity_per_element: 1/mu evaluated at each element in the mesh
 
 Returns:
 - M, mass matrix
@@ -34,11 +32,11 @@ function assemble_M(mesh_data, conductivity_per_element)
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
         # The x and y coordinates of the (triangular) element
-        xs = [mesh_data.xnode[node] for node in nodes];
-        ys = [mesh_data.ynode[node] for node in nodes];
+        xs(i) = mesh_data.xnode[nodes[i]];
+        ys(i) = mesh_data.ynode[nodes[i]];
         
         # Compute the area of the current element
-        area = (xs[2] - xs[1])*(ys[3] - ys[1]) - (xs[3] - xs[1])*(ys[2] - ys[1]);
+        area = (xs(2) - xs(1))*(ys(3) - ys(1)) - (xs(3) - xs(1))*(ys(2) - ys(1));
         area = abs(area) / 2;
 
         # Construct local contributions to M
@@ -56,4 +54,20 @@ function assemble_M(mesh_data, conductivity_per_element)
     M[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)));
     return M
 
+end
+
+
+"""
+Constructs local contribution to mass matrix M on element e
+
+Arguments:
+- area: area of the current element
+- conductivity: sigma evaluated on the element
+
+Returns:
+- Bloc, local contribution to stiffnes matrix
+"""
+function construct_Me(area, conductivity)
+    Mloc = area / 3 * conductivity * diagm(ones(3));
+    return Mloc
 end

@@ -1,5 +1,4 @@
-include("construct_Be.jl")
-include("construct_Je.jl")
+
 
 """
 Constructs the components of the B-field given the solution vector, u.
@@ -11,7 +10,7 @@ Arguments:
 Returns:
 - Bx, By, Bz: x-, y- and z-components of the B-field. 
 """
-function assemble_solution(mshdata, u, source_per_element, reluctivity_per_element, conductivityperelement,)
+function solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element)
     Bx = zeros(Complex{Float64}, mshdata.nelements);
     By = zeros(Complex{Float64}, mshdata.nelements);
     Bz = zeros(Complex{Float64}, mshdata.nelements);
@@ -27,10 +26,10 @@ function assemble_solution(mshdata, u, source_per_element, reluctivity_per_eleme
         c = u[nodes(1:3)];
 
         # B components
-        Bx[element_id],By[element_id] = construct_Be(c, xs, ys)
+        Bx[element_id], By[element_id] = construct_Be(c, xs, ys)
 
         # current 
-        Je[element_id] = construct_Je(c, sourceperelement[element_id], conductivityperelement[element_id])
+        Je[element_id] = construct_Je(c, sourceperelement[element_id], conductivity_per_element[element_id])
     end
 
     # H is related to B through the reluctivity
@@ -42,4 +41,29 @@ function assemble_solution(mshdata, u, source_per_element, reluctivity_per_eleme
     
     return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
     
+end
+
+
+"""
+Construct the B components
+"""
+function construct_Be(c, xs, ys)
+    # construct shape function
+    Emat = [
+        xs(1:3) ys(1:3) [1, 1, 1]
+    ] \ UniformScaling(1.);
+
+    # Calculate Bx and By from the solution coefficients and the shape function parameters
+    Bx = sum(c .* Emat[2,:]);
+    By = -sum(c .* Emat[1,:]);
+
+    return Bx, By
+end
+
+
+"""
+Calculate eddy current loss.
+"""
+function construct_je(c, conductivity, source)
+    return norm(source + conductivity * 1/3 * sum(c));
 end
