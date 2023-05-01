@@ -8,7 +8,7 @@ Arguments:
 Returns:
 - Bloc, local contribution to stiffnes matrix
 """
-function construct_Ke(area, conductivity)
+function construct_Me(area, conductivity)
     Mloc = area / 3 * conductivity * Diagonal(ones(3));
     return Mloc
 end

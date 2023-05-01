@@ -42,3 +42,4 @@ function assemble_solution(mshdata, u, source_per_element, reluctivity_per_eleme
     
     return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
     
+end

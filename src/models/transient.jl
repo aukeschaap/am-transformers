@@ -1,18 +1,23 @@
-using gmsh
+
+try
+    using Gmsh: gmsh
+catch
+    using gmsh
+end
+
+
 using LinearAlgebra, SparseArrays, WriteVTK, BenchmarkTools
 using Logging
 include("../constants.jl")
 include("../get_mesh_data.jl")
 include("../process.jl")
-include("../definitions/source.jl")
-include("../definitions/linear_reluctivity.jl")
-include("../definitions/conductivity.jl")
+include("../definitions/general.jl")
 include("../definitions/assemble_Kf.jl")
 include("../definitions/assemble_M.jl")
 include("../definitions/assemble_solution.jl")
 
-const MESH_LOCATION = "../../mesh/transformer_stedin.msh"
-const OUTPUT_LOCATION = "../../out/"
+const MESH_LOCATION = "./mesh/transformer_stedin.msh"
+const OUTPUT_LOCATION = "./out/"
 gmsh.open(MESH_LOCATION)
 mshdata = get_mesh_data();
 
@@ -48,13 +53,17 @@ conductivity_per_element = map(
     id -> conductivity(id),
     mshdata.e_group
 );
-print("Finished evaluating parameters.")
+println("Done.")
 
-print("Constructing linear system...")
-K, f = @timev assemble_Kf(mshdata,source_per_element,reluctivity_per_element)
-print("Finished construction of K & f.")
-M = @timev assemble_M(mshdata, conductivity_per_element)
-print("Finished construction of M.")
+
+println("Linear system:")
+print("  ▸ Constructing K and f...\r")
+K, f = assemble_Kf(mshdata,source_per_element,reluctivity_per_element)
+println("  ✓ Constructed K and f    ")
+print("  ▸ Constructing M...\r")
+M = assemble_M(mshdata, conductivity_per_element)
+println("  ✓ Constructed M    ")
+
 
 B, H, Wm, Jel = assemble_solution(mshdata, u, source_per_element, reluctivity_per_element, conductivity_per_element);
 Bnorm = norm.(sqrt.(B[1].^2 + B[2].^2));

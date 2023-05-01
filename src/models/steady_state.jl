@@ -15,9 +15,8 @@ using BenchmarkTools
 include("../constants.jl")
 include("../get_mesh_data.jl")
 include("../process.jl")
-include("../definitions/source.jl")
-include("../definitions/linear_reluctivity.jl")
 include("../definitions/assemble_Kf.jl")
+include("../definitions/general.jl")
 
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
@@ -55,6 +54,7 @@ function main()
 
 
     # Calculate source, reluctivity and conductivity
+    print("Evaluating parameters on the elements... ")
     source_per_element = map(
         id -> source(Jp, Js, id),
         mshdata.e_group
@@ -64,20 +64,27 @@ function main()
         mshdata.e_group
     );
     conductivity_per_element = map(
-        id -> 0,
+        id -> conductivity(id),
         mshdata.e_group
     );
+    println("Done.")
 
 
     # Assemble K and f
+    println("Linear system:")
+    print("  ▸ Constructing K and f... \r")
     K, f = assemble_Kf(
         mshdata,
         source_per_element,
         reluctivity_per_element,
     );
+    println("  ✓ Constructed K and f    ")
+
 
     # Solve the system
+    print("  ▸ Solving...\r")
     u = K \ f;
+    println("  ✓ Solved.   ")
 
 
     # Post processing
