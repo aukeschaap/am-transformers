@@ -47,7 +47,7 @@ function assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
 
     K = sparse(fsp.i_row, fsp.i_col, fsp.value, mesh_data.nnodes, mesh_data.nnodes, +);
 
-    # Handle the boundary conditions
+    # Handle the (zero) boundary conditions
     bnd_node_ids, _ = gmsh.model.mesh.getNodesForPhysicalGroup(1, 1);
     K[bnd_node_ids,:] .= 0;
     K[bnd_node_ids,bnd_node_ids] = Diagonal(ones(size(bnd_node_ids)));
