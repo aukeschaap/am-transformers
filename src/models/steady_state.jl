@@ -15,9 +15,8 @@ using BenchmarkTools
 include("../FastSparse.jl")
 
 include("../get_mesh_data.jl")
-include("../utils/process.jl")
-include("../utils/save.jl")
-include("../utils/result.jl")
+include("../utils/save_vtk.jl")
+include("../utils/solution.jl")
 
 include("../definitions/constants.jl")
 include("../definitions/general.jl")
@@ -71,13 +70,14 @@ function main()
 
 
     # Post processing
-    B, H, Wm, Jel = process(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element, ω);
+    B, H, Wm, Jel = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element);
 
-    save(
+    print("Saving result in a file...")
+    save_vtk(
         "steadystate3.vtu",
         mesh_data, u, B, H, Wm, Jel
     )
-
+    println(" Done.")
 end
 
 
