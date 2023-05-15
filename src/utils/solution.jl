@@ -1,7 +1,7 @@
 
 
 """
-Constructs the components of the B-field given the solution vector, u.
+Constructs the components of the B- & H-fields, the energy and current density given the solution vector, u.
 
 Arguments:
 - mesh_data: contains all mesh information: (number of) elements & nodes (global & local) & coordinates.
@@ -19,22 +19,22 @@ function solution(mesh_data, u, source_per_element, reluctivity_per_element, con
     for (element_id, nodes) in enumerate(mesh_data.elements)
 
         # nodal coordinates
-        xs(i) = MeshData.xnode[nodes[i]];
-        ys(i) = MeshData.ynode[nodes[i]];
+        xs(i) = mesh_data.xnode[nodes[i]];
+        ys(i) = mesh_data.ynode[nodes[i]];
 
         # solution coefficients
-        c = u[nodes(1:3)];
+        c = u[nodes[1:3]];
 
         # B components
         Bx[element_id], By[element_id] = construct_Be(c, xs, ys)
 
         # current 
-        Je[element_id] = construct_Je(c, sourceperelement[element_id], conductivity_per_element[element_id])
+        Jel[element_id] = construct_Je(c, source_per_element[element_id], conductivity_per_element[element_id])
     end
 
     # H is related to B through the reluctivity
-    Hx = reluctivityperelement' .* Bx;
-    Hy = reluctivityperelement' .* By;
+    Hx = reluctivity_per_element' .* Bx;
+    Hy = reluctivity_per_element' .* By;
     
     # Energy is 0.5 * dot(B, H)
     Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
@@ -64,6 +64,6 @@ end
 """
 Calculate eddy current loss.
 """
-function construct_je(c, conductivity, source)
+function construct_Je(c, conductivity, source)
     return norm(source + conductivity * 1/3 * sum(c));
 end
