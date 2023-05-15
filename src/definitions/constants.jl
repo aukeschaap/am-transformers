@@ -83,9 +83,4 @@ Js = Ns * Is / Awlv;
 μ_r = 1000;
 
 
-# Frequency (in case of freq domain analysis)
-
-"Frequency"
-ω = 0
-
 
