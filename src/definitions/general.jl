@@ -4,7 +4,7 @@
 
 The `conductivity` function defines the conductivity of the iron core. By Max's thesis,
 the core's conductivity is taken to be constant throughout the entire core and is reduced by a
-factor of 10 due to eddy currents.
+factor of 10 to model the effect of eddy currents.
 
 Arguments:
 - group_id: the physical group id
