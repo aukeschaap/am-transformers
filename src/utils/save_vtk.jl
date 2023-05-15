@@ -1,6 +1,6 @@
 
 """Save result"""
-function save(file_name, mesh_data, u, B, H, Wm, Jel)
+function save_vtk(file_name, mesh_data, u, B, H, Wm, Jel)
 
     # Define nodes (points) and elements (cells)
     points = [mesh_data.xnode mesh_data.ynode]';
@@ -17,8 +17,6 @@ function save(file_name, mesh_data, u, B, H, Wm, Jel)
     vtkfile["Jel", VTKCellData()]   = Jel;
 
     # Save the file
-    print("Saving result in a file...")
     outfiles = vtk_save(vtkfile);
-    println(" Done.")
 
 end
