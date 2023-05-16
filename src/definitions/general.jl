@@ -4,7 +4,7 @@
 
 The `conductivity` function defines the conductivity of the iron core. By Max's thesis,
 the core's conductivity is taken to be constant throughout the entire core and is reduced by a
-factor of 10 due to eddy currents.
+factor of 10 to model the effect of eddy currents.
 
 Arguments:
 - group_id: the physical group id
@@ -42,7 +42,7 @@ Furthermore,
 
 Arguments:
 - Jp: Primary current density.
-- Js: Sceondary current density.
+- Js: Secondary current density.
 - id: Group id of the physical group the winding belongs to. 
 
 Returns (implicitly):
@@ -51,27 +51,21 @@ Returns (implicitly):
 function source(Jp, Js, id)
     (
         Jp * (
-            exp(1im * 2pi/3) * (
-                (id==4) - (id==3)
-            ) + (
-                (id==6) - (id==5)
-            ) + exp(-1im * 2pi/3) * (
-                (id==8) - (id==7)
-            )
+            exp(1im * 2pi/3) * ((id==4) - (id==3)) 
+            +
+            ((id==6) - (id==5)) 
+            + 
+            exp(-1im * 2pi/3) * ((id==8) - (id==7))
         )
 
         + 
 
         Js * (
-            exp(1im * 2pi/3) * (
-                (id==9) - (id==10)
-            )
-            + (
-                (id==11) - (id==12)
-            )
-            + exp(-1im * 2pi/3) * (
-                (id==13) - (id==14)
-            )
+            exp(1im * 2pi/3) * ((id==9) - (id==10)) 
+            + 
+            ((id==11) - (id==12)) 
+            + 
+            exp(-1im * 2pi/3) * ((id==13) - (id==14))
         )
     );
 end
