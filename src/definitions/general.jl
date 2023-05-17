@@ -20,7 +20,13 @@ end
 
 """
 # Linear reluctivity
+
 The linear reluctivity of the different materials.
+
+Arguments:
+- μ_0: permeability of free space
+- μ_r: relative permeability of the material
+- id: the group id of the physical group the winding belongs to
 """
 function linear_reluctivity(μ_0, μ_r, id)
     (1 / μ_0) + (1/(μ_0*μ_r) - 1/μ_0) * (id == 2)

@@ -80,7 +80,7 @@ Js = Ns * Is / Awlv;
 μ_0 = 4e-7 * pi;
 
 "Relative permeability of the core"
-μ_r = 1000;
+μ_r = 1;
 
 
 

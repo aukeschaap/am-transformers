@@ -36,7 +36,7 @@ function main()
     println("\nMesh built.")
 
     # set frequency of source current
-    ω = 2π*50
+    ω = 2π*0.1
 
     # Calculate source, reluctivity and conductivity (linear element)
     print("Evaluating parameters on the elements...")
@@ -69,10 +69,11 @@ function main()
     v = Vector{Float64}(undef, mesh_data.nnodes)
     # f .= 0 
     function magneticVectorPotentialEquation!(du,u,p,t)
-        du .= M \ (real.(exp(1im*ω*t).*f) .- mul!(v,K,u))
+        du .= M \ (imag.(exp(1im*ω*t).*f) .- mul!(v,K,u))  #real.
+        # du .= M \ (f .- K*u)  #real.
     end
 
-    # set initial position and velocity
+    # set initial condition
     u0 = fill(0., mesh_data.nnodes)
                                         
     # set time begin and end
@@ -93,6 +94,7 @@ function main()
     # sol = DifferentialEquations.solve(prob_magneticVectorPotential, Tsit5(), progress=true, progress_steps=10);
     # sol = DifferentialEquations.solve(prob_magneticVectorPotential, Anas5(ω), dt=dt, force_dtmin = false, progress=true, progress_steps=10);
     sol = DifferentialEquations.solve(prob_magneticVectorPotential, Euler(), dt=dt, force_dtmin = false, progress=true, progress_steps=10);
+    # sol = DifferentialEquations.solve(prob_magneticVectorPotential, AutoTsit5(Rosenbrock23()), force_dtmin = false, progress=true, progress_steps=10);
     println("  ✓ ODE solved    ")
     
     # check initial solution
