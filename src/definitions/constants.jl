@@ -73,14 +73,13 @@ Jp = Np * Ip / Awhv;
 "Current density in the secondary coil"
 Js = Ns * Is / Awlv;
 
-
 # Permeabality
 
 "Permeabality of free space"
 μ_0 = 4e-7 * pi;
 
 "Relative permeability of the core"
-μ_r = 1;
+μ_r = 1000;
 
 
 
