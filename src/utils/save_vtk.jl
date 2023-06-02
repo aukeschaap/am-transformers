@@ -18,5 +18,6 @@ function save_vtk(file_name, mesh_data, u, B, H, Wm, Jel)
 
     # Save the file
     outfiles = vtk_save(vtkfile);
+    return vtkfile
 
 end
