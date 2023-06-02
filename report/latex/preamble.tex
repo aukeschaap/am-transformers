@@ -17,7 +17,7 @@
 \usepackage{newpxtext}
 
 % Removes indentation and adds vspace
-\usepackage{parskip}
+% \usepackage{parskip}
 
 % Equations and mathematical symbols
 \usepackage{amsmath, amssymb, amsthm}
@@ -27,6 +27,9 @@
 \usepackage{graphicx}
 \usepackage[font=small,labelfont=bf]{caption}
 
+% Hyperlinks
+\usepackage{hyperref}
+\usepackage{cleveref}
 
 % Appendices
 \usepackage{appendix}
@@ -106,3 +109,19 @@
 
 \declaretheoremstyle[headfont=\bfseries\sffamily, bodyfont=\normalfont, numbered=no, mdframed={} ]{thmsolutionbox}
 \declaretheorem[numbered=no, style=thmsolutionbox, name=Solution]{solution}
+
+
+
+
+\newif\ifshowcomments
+\showcommentstrue
+% \showcommentsfalse
+\ifshowcomments
+\newcommand{\mynote}[2]{\fbox{\bfseries\sffamily\scriptsize{#1}}
+{\small$\blacktriangleright$\textsf{\emph{#2}}$\blacktriangleleft$}}
+\newcommand{\citehere}[0]{\textcolor{red}{\fbox{\bfseries\sffamily\scriptsize{CITATION}}}}
+\else
+\newcommand{\mynote}[2]{}
+\newcommand{\citehere}[0]{}
+\fi
+\newcommand{\todo}[1]{\textcolor{blue}{\mynote{To do}{#1}}}
