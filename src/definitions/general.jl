@@ -61,21 +61,21 @@ Returns (implicitly):
 function source(Jp, Js, id)
     (
         Jp * (
-            0 * (exp(1im * 2pi/3) * ((id==4) - (id==3)))
+            (exp(1im * 2pi/3) * ((id==4) - (id==3)))
             +
             ((id==6) - (id==5)) 
             + 
-            0 * (exp(-1im * 2pi/3) * ((id==8) - (id==7)))
+            (exp(-1im * 2pi/3) * ((id==8) - (id==7)))
         )
 
         + 
 
         Js * (
-            0 * (exp(1im * 2pi/3) * ((id==9) - (id==10)))
+            (exp(1im * 2pi/3) * ((id==9) - (id==10)))
             + 
             ((id==11) - (id==12)) 
             + 
-            0 * (exp(-1im * 2pi/3) * ((id==13) - (id==14)))
+            (exp(-1im * 2pi/3) * ((id==13) - (id==14)))
         )
     );
 end
