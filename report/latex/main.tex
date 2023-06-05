@@ -99,7 +99,7 @@ Substituting in the Maxwell equations and rearranging, we obtain our problem def
 
 \newpage
 \section{Finite Element Approach}
-To solve this system, the finite element method can be used. This leads to the following weak form.
+To solve this system, the finite element method can be used. This leads to the following discretised weak form.
 \begin{weakform}
     \begin{equation*}
         \sigma M \dot u = \frac{1}{\mu}K u + f,
@@ -112,11 +112,10 @@ To solve this system, the finite element method can be used. This leads to the f
         \item $f$ is the source term, given by $J_z$,
     \end{itemize}
 \end{weakform}
-The solution of this problem is a time dependent solution, which makes it a difficult to solve problem. A few paths can be taken to simplify.
-
 
 \subsection{Single frequency}
-One possible assumption is that, because the current has a constant frequency, $A_z$ also has one frequency. Then, separation of variables is valid, and we can write
+One possible assumption is that, because the current has a constant frequency, $A_z$ also has one frequency. 
+Then, separation of variables is valid, and we can write
 \begin{align*}
     u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
 \end{align*}
