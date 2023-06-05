@@ -5,13 +5,6 @@ include("solution.jl")
 
 function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolution, source_per_element, reluctivity_per_element, conductivity_per_element)
         
-        n_time_steps = length(sol.t)
-
-        vtk_series_dict = Dict(
-                "file_series_version" => 1.0,
-                "files" => Array{Dict}(undef, n_time_steps)
-        )
-
         fspec = FormatSpec("<d") # flush left, decimal integer
 
         name *= "_" * fmt(fspec, 0)
@@ -20,7 +13,7 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolutio
         #check if folder exists
         passed = false
         i = 0
-        while !passed && i < 10
+        while !passed
                 i += 1
                 if isdir(solution_folder)
                         exists = true 
@@ -32,9 +25,10 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolutio
         end
 
         mkdir(solution_folder)
-        time_serries_fn = joinpath(solution_folder, name * "_series")
-        time_series = paraview_collection(time_serries_fn)
+        time_series_fn = joinpath(solution_folder, name * "_series")
+        time_series = paraview_collection(time_series_fn)
 
+        n_time_steps = length(sol.t)
         len = 0
         for i in 1:n_time_steps
                 t = sol.t[i]
@@ -55,11 +49,6 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolutio
                 vtk_file = save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel)
 
                 # save the file name and time
-                # vtk_series_dict["files"][i] = Dict(
-                #         "name" => file_name_t * ".vtu",
-                #         "time" => t
-                # );
-                # time_series.add(file_name_t * ".vtu", t)
                 collection_add_timestep(time_series, vtk_file, t)
         end
         # clear progress bar
@@ -69,12 +58,5 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolutio
         print("\r")
 
         # save time series data   
-        # stringdata = JSON.json(vtk_series_dict)
-
-        # # write the json string to a *.vtk.series file
-        # vtk_series_fn = name * ".vtk.series"
-        # vtk_series_path = joinpath(solution_folder, vtk_series_fn)
-        # open(vtk_series_path, "w") do f
-        #         write(f, stringdata)
         vtk_save(time_series)
 end
