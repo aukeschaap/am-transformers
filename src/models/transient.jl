@@ -22,7 +22,7 @@ include("../definitions/constants.jl")
 include("../definitions/general.jl")
 include("../definitions/assemble_Kf.jl")
 include("../definitions/assemble_M.jl")
-include("../definitions/assemble_sys.jl")
+# include("../definitions/assemble_sys.jl")
 
 
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
@@ -59,25 +59,37 @@ function main()
     println("Done.")
 
     # Assemble constant mass matrix
-    # println("Linear system:")
-    # print("  ▸ Constructing K and f...\r")
-    # K, f = assemble_Kf(mesh_data,source_per_element,reluctivity_per_element)
-    # println("  ✓ Constructed K and f    ")
-    # print("  ▸ Constructing M...\r")
-    # M = assemble_M(mesh_data, conductivity_per_element)
-    # println("  ✓ Constructed M    ")
     println("Linear system:")
-    print("  ▸ Constructing FE system...\r")
-    K, M, f = assemble_sys(mesh_data, source_per_element, reluctivity_per_element, conductivity_per_element)
-    println("  ✓ Constructed FE system    ")
+    print("  ▸ Constructing K and f...\r")
+    K, f = assemble_Kf(mesh_data,source_per_element,reluctivity_per_element)
+    println("  ✓ Constructed K and f    ")
+    print("  ▸ Constructing M...\r")
+    M = assemble_M(mesh_data, conductivity_per_element)
+    println("  ✓ Constructed M    ")
+    println("  ▸ check singularity of M...")
+    M_size = size(M)
+    M_rank = rank(M)
+    println("       shape of M: ", M_size)
+    println("       rank of M: ", M_rank)
+    if M_size[1] == M_rank
+        println("  ✓ M is non-singular")
+    elseif M_size[1] > M_rank
+        println("  ✗ M is singular")    
+    end
+    
+    # println("Linear system:")
+    # print("  ▸ Constructing Gijs' FE system...\r")
+    # K, M, f = assemble_sys(mesh_data, source_per_element, reluctivity_per_element, conductivity_per_element)
+    # println("  ✓ Constructed FE system    ")
 
     # time stepping: source is causing instability!
     v = Vector{Float64}(undef, mesh_data.nnodes)
     function magneticVectorPotentialEquation!(du,u,p,t)
-        f_floats = reinterpret(Float64, exp(1im*ω*t).*f)
-        f_real = @view f_floats[1:2:end-1]
-        du .= f_real .+ mul!(v,K,u) #real.
-        # du .= M \ (f_real .+ mul!(v,K,u)) #real.
+        # f_floats = reinterpret(Float64, exp(1im*ω*t).*f)
+        # f_real = @view f_floats[1:2:end-1]
+        # du .= f_real .+ mul!(v,K,u) #real.
+
+        du .= real.(exp(1im * ω * t) .* f) .+ mul!(v,K,u)
     end
     f_func = ODEFunction(magneticVectorPotentialEquation!, mass_matrix = M)
     
@@ -85,9 +97,9 @@ function main()
     u0 = fill(0., mesh_data.nnodes)
                                         
     # set time begin and end
-    number_of_periods = 1
+    number_of_periods = 5
     t0 = 0.0
-    tf = number_of_periods*(2*pi/ω)
+    tf = number_of_periods * (2*pi/ω)
     tspan = (t0, tf)
     dt = (tf-t0)/30
     tvec = Vector(t0:dt:tf)
@@ -99,7 +111,7 @@ function main()
     println("  ✓ ODE defined                ")
     print("  ▸ solving ODE...\r")
     # sol = solve(prob_magneticVectorPotential, Euler(), dt=dt, force_dtmin = false, progress=true, progress_steps=10);
-    sol = solve(prob_magneticVectorPotential, ROS3P(autodiff=false), progress=true, progress_steps=10)
+    sol = solve(prob_magneticVectorPotential, ROS3P(autodiff=false), dt=dt, progress=true, progress_steps=10)
     println("  ✓ ODE solved    ")
     
     # check initial solution
