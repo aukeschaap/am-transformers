@@ -36,7 +36,8 @@ function main()
     println("\nMesh built.")
 
     # set frequency of source current
-    ω = 2π*0.1
+    freq = 500 # Hz
+    ω = 2π*freq
 
     # Calculate source, reluctivity and conductivity (linear element)
     print("Evaluating parameters on the elements...")
@@ -69,7 +70,7 @@ function main()
     display(f)    
 
     # Solve linear system
-    u = K \ f
+    u = (K + 1im*ω*M) \ f
 
     # redfine source function to include frequency
     function construct_Je(c, conductivity, source)
@@ -79,7 +80,7 @@ function main()
     B, H, Wm, Jel = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element)
 
     # Save solution
-    vtk_path = "frequency_approach.vtu"
+    vtk_path = "frequency_approach_" * string(round(freq,digits=2)) * ".vtu";
     save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel)
 
 end
