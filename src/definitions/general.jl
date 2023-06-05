@@ -12,18 +12,28 @@ Arguments:
 Returns:
 value of the conductivity
 """
-function conductivity(group_id)
-    0.1
+function conductivity(id)
+    if id==2
+        0.1
+    else
+        1/1000
+    end
 end
 
 
 
 """
 # Linear reluctivity
+
 The linear reluctivity of the different materials.
+
+Arguments:
+- μ_0: permeability of free space
+- μ_r: relative permeability of the material
+- id: the group id of the physical group the element belongs to. For id==2 the permeability of the iron core is returned.
 """
 function linear_reluctivity(μ_0, μ_r, id)
-    (1 / μ_0) + (1/(μ_0*μ_r) - 1/μ_0) * (id == 2)
+    (1/μ_0) + (1/(μ_0*μ_r) - 1/μ_0) * (id == 2)
 end
 
 
@@ -51,21 +61,21 @@ Returns (implicitly):
 function source(Jp, Js, id)
     (
         Jp * (
-            exp(1im * 2pi/3) * ((id==4) - (id==3)) 
+            (exp(1im * 2pi/3) * ((id==4) - (id==3)))
             +
             ((id==6) - (id==5)) 
             + 
-            exp(-1im * 2pi/3) * ((id==8) - (id==7))
+            (exp(-1im * 2pi/3) * ((id==8) - (id==7)))
         )
 
         + 
 
         Js * (
-            exp(1im * 2pi/3) * ((id==9) - (id==10)) 
+            (exp(1im * 2pi/3) * ((id==9) - (id==10)))
             + 
             ((id==11) - (id==12)) 
             + 
-            exp(-1im * 2pi/3) * ((id==13) - (id==14))
+            (exp(-1im * 2pi/3) * ((id==13) - (id==14)))
         )
     );
 end

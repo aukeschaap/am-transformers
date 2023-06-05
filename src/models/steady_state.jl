@@ -65,7 +65,7 @@ function main()
 
     # Solve the system
     print("  ▸ Solving...\r")
-    u = K \ f;
+    u = K \ real.(f);
     println("  ✓ Solved.   ")
 
 

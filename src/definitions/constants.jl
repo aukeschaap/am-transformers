@@ -73,7 +73,6 @@ Jp = Np * Ip / Awhv;
 "Current density in the secondary coil"
 Js = Ns * Is / Awlv;
 
-
 # Permeabality
 
 "Permeabality of free space"
