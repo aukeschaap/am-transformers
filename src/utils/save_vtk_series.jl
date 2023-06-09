@@ -9,9 +9,7 @@ function save_vtk_series(
         name :: String,
         mesh_data :: MeshData,
         sol :: Solution,
-        source_per_element,
-        reluctivity_per_element,
-        conductivity_per_element
+        solution_function :: Function,
 )
         
         fspec = FormatSpec("<d") # flush left, decimal integer
@@ -53,7 +51,7 @@ function save_vtk_series(
                 print(progress)
 
                 # save the vtk file
-                B, H, Wm, Jel = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element)
+                B, H, Wm, Jel = solution_function(mesh_data, u)
                 vtk_path = joinpath(name, file_name_t * ".vtu")  # relative to OUTPUT_LOCATION
                 vtk_file = save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel)
 

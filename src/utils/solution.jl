@@ -44,6 +44,41 @@ function solution(mesh_data, u, source_per_element, reluctivity_per_element, con
 end
 
 
+function nonlinear_solution(mesh_data, u, source_per_element, nonlinear_reluctivity_per_element, conductivity_per_element)
+    Bx = zeros(Complex{Float64}, mesh_data.nelements);
+    By = zeros(Complex{Float64}, mesh_data.nelements);
+    Bz = zeros(Complex{Float64}, mesh_data.nelements);
+    Jel = zeros(mesh_data.nelements);
+
+    for (element_id, nodes) in enumerate(mesh_data.elements)
+
+        # nodal coordinates
+        xs(i) = mesh_data.xnode[nodes[i]];
+        ys(i) = mesh_data.ynode[nodes[i]];
+
+        # solution coefficients
+        c = u[nodes[1:3]];
+
+        # B components
+        Bx[element_id], By[element_id] = construct_Be(c, xs, ys)
+
+        # current 
+        Jel[element_id] = construct_Je(c, source_per_element[element_id], conductivity_per_element[element_id])
+    end
+
+    # H is related to B through the reluctivity
+    B_norm = norm(.√(Bx.^2 + By.^2))
+    Hx = nonlinear_reluctivity_per_element(B_norm)' .* Bx;
+    Hy = nonlinear_reluctivity_per_element(B_norm)' .* By;
+    
+    # Energy is 0.5 * dot(B, H)
+    Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
+    
+    return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
+    
+end
+
+
 """
 Construct the B components
 """
