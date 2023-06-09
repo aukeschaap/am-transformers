@@ -28,11 +28,6 @@ include("../definitions/assemble_M.jl")
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
 
-# create solution type
-struct sol_type
-    t::Array{Float64,1}
-    u::Array{Array{ComplexF64,1},1}
-end
 
 function main()
 
@@ -66,7 +61,7 @@ function main()
     # Assemble constant mass matrix
     println("Linear system:")
     print("  ▸ Constructing K and f...\r")
-    K, f = assemble_Kf(mesh_data, source_per_element, reluctivity_per_element)
+    K, f = assemble_Kf(mesh_data,source_per_element,reluctivity_per_element)
     println("  ✓ Constructed K and f    ")
     print("  ▸ Constructing M...\r")
     M = assemble_M(mesh_data, conductivity_per_element)
@@ -81,49 +76,55 @@ function main()
     elseif M_size[1] > M_rank
         println("  ✗ M is singular")    
     end
+    
+    # println("Linear system:")
+    # print("  ▸ Constructing Gijs' FE system...\r")
+    # K, M, f = assemble_sys(mesh_data, source_per_element, reluctivity_per_element, conductivity_per_element)
+    # println("  ✓ Constructed FE system    ")
 
+    # time stepping: source is causing instability!
+    v = Vector{Float64}(undef, mesh_data.nnodes)
+    function magneticVectorPotentialEquation!(du,u,p,t)
+        # f_floats = reinterpret(Float64, exp(1im*ω*t).*f)
+        # f_real = @view f_floats[1:2:end-1]
+        # du .= f_real .+ mul!(v,K,u) #real.
+
+        du .= real.(exp(1im * ω * t) .* f) .+ mul!(v,K,u)
+    end
+    f_func = ODEFunction(magneticVectorPotentialEquation!, mass_matrix = M)
+    
+    # set initial condition
+    u0 = fill(0., mesh_data.nnodes)
+                                        
     # set time begin and end
     number_of_periods = 5
     t0 = 0.0
     tf = number_of_periods * (2*pi/ω)
     tspan = (t0, tf)
-    dt = (tf-t0)/1000
+    dt = (tf-t0)/30
     tvec = Vector(t0:dt:tf)
-    Nt = length(tvec)
 
-     # set initial condition
-    u0 = fill(0., mesh_data.nnodes)
-    uk = copy(u0)
-    u = Array{Array{ComplexF64,1},1}(undef, Nt)
-    u[1:Nt] = [copy(u0) for i in 1:Nt]
-
-    # perform time integration using backward Euler  
-    println("Solving ODE...")
-    for k = 2:Nt
-        t = (k-1)*dt
-        uk = (M + dt .* K) \ (M * uk + dt .* real.(exp(1im * ω * t) .* f))
-        u[k] = copy(uk[:,1])
-        message = "  ▸ " * string(round(k/Nt*100,digits=2)) * "%" * " time = " * string(round(10^6*t, digits=2)) * " μs" * "\r"
-        print(message)
-    end 
-    sol = sol_type(tvec, u)
-    print("                                                             \r")
+    # define ODE problem to be solved  +
+    println("ODE problem:")
+    print("  ▸ Defining ODE...\r")
+    prob_magneticVectorPotential = ODEProblem(f_func, u0, tspan)
+    println("  ✓ ODE defined                ")
+    print("  ▸ solving ODE...\r")
+    # sol = solve(prob_magneticVectorPotential, Euler(), dt=dt, force_dtmin = false, progress=true, progress_steps=10);
+    sol = solve(prob_magneticVectorPotential, ROS3P(autodiff=false), dt=dt, progress=true, progress_steps=10)
     println("  ✓ ODE solved    ")
     
     # check initial solution
     println("Checking initial solution...")
-    B, H, Wm, Jel = solution(mesh_data, u[1], source_per_element, reluctivity_per_element, conductivity_per_element);
+    B, H, Wm, Jel = solution(mesh_data, sol(0.0), source_per_element, reluctivity_per_element, conductivity_per_element);
     Bnorm = sqrt.(B[1].^2 + B[2].^2)
     println(" → number of nodes: ", mesh_data.nnodes)
     println(" → number of xnodes: ", length(mesh_data.xnode))
     println(" → number of ynodes: ", length(mesh_data.ynode))
     println(" → length of Bnorm: ", length(Bnorm))
     println(" → number of elements: ", mesh_data.nelements)
-    n_time_steps = length(tvec)
+    n_time_steps = length(sol.t)
     println(" → number of time steps: ", n_time_steps)
-
-    println("saving solution...")
-    # create solution type
 
     # save time series
     print("  ▸ saving time series...\r")

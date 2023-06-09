@@ -37,6 +37,30 @@ function linear_reluctivity(μ_0, μ_r, id)
 end
 
 
+
+"""
+# Nonlinear reluctivity
+
+The nonlinear reluctivity of the different materials.
+
+Arguments:
+- μ_0: permeability of free space
+- μ_r: relative permeability of the material
+- id: the group id of the physical group the element belongs to. For id==2 the permeability of the iron core is returned.
+"""
+function nonlinear_reluctivity(id, B)
+    bh_a = 2.12e-4; 
+    bh_b = 7.358;
+    bh_c = 1.18e7;
+
+    μ_r_core(B) = 1 / (bh_a + (1 - bh_a) * B^(2*bh_b) / (B^(2*bh_b) + bh_c));
+    
+    return 1 / (
+        μ_0 + 
+        μ_0 * (id == 2) * (μ_r_core(B) - 1)
+    )
+end
+
 """
 # Source current density J
 

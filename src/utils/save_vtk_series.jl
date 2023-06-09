@@ -1,9 +1,18 @@
 import JSON
 using Formatting
+using .TimeDependentSolution
+
 include("save_vtk.jl")
 include("solution.jl")
 
-function save_vtk_series(name :: String, mesh_data:: MeshData, sol, source_per_element, reluctivity_per_element, conductivity_per_element)
+function save_vtk_series(
+        name :: String,
+        mesh_data :: MeshData,
+        sol :: Solution,
+        source_per_element,
+        reluctivity_per_element,
+        conductivity_per_element
+)
         
         fspec = FormatSpec("<d") # flush left, decimal integer
 
@@ -59,4 +68,6 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol, source_per_e
 
         # save time series data   
         vtk_save(time_series)
+
+        return name
 end
