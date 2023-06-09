@@ -3,7 +3,7 @@ using Formatting
 include("save_vtk.jl")
 include("solution.jl")
 
-function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolution, source_per_element, reluctivity_per_element, conductivity_per_element)
+function save_vtk_series(name :: String, mesh_data:: MeshData, sol, source_per_element, reluctivity_per_element, conductivity_per_element)
         
         fspec = FormatSpec("<d") # flush left, decimal integer
 
@@ -32,7 +32,7 @@ function save_vtk_series(name :: String, mesh_data:: MeshData, sol :: ODESolutio
         len = 0
         for i in 1:n_time_steps
                 t = sol.t[i]
-                u = sol[i]
+                u = sol.u[i]
                 fspec = FormatSpec("<d") # flush left, decimal integer
                 formatted_time = fmt(fspec, floor(t * 1e6)) #convert(Int64, t * 1e6)) <- causes inexactly representable error
                 time_stamp = "t=" * formatted_time * "μs"
