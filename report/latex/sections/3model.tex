@@ -37,7 +37,7 @@ where
 \end{itemize}
 
 \begin{assumption}
-    The permittivity of vacuum $\epsilon_0$ is very small, $(\mathcal{O}(10^{-12}))$, and for all materials in this research $\epsilon_r < 10$, so $\epsilon$ can be neclegted. Therefore, $\mathbf{D} = 0$ and can be neglected.
+    The permittivity of vacuum $\epsilon_0$ is very small, $(\mathcal{O}(10^{-12}))$, and for all materials in this research $\epsilon_r < 10$, so $\epsilon$ can be neclegted. Therefore, $\mathbf{D} \approx 0$ and can be neglected.
 \end{assumption}
 
 \noindent Substituting this in the Maxwell equations yields three equations,
@@ -59,15 +59,18 @@ we can formulate a system that we can solve.
 \end{assumption}
 
 \begin{assumption}
-    The flow of current is oriented along the $z$ axis, and the geometry is in the $xy$ plane. That is, $\mathbf{A} = (0, 0, A_z)$ and $\mathbf{J_e} = (0, 0, J_z)$. This implies $\nabla \times \mathbf A = \nabla A_z$.
+    The flow of current is oriented along the $z$ axis, and the geometry is in the $xy$ plane. That is, $\mathbf{A} = (0, 0, A_z)$ and $\mathbf{J_e} = (0, 0, J_z)$. This implies $\nabla \times \mathbf A = (\partial_y A_z, -\partial_x A_z,0)$.
 \end{assumption}
 
-\noindent Substituting in the Maxwell equations and rearranging, we obtain our problem definition.
+\noindent Substituting these assumptions into the Maxwell equations and rearranging, we obtain our problem definition.
+\begin{equation*}
+    \sigma\frac{\partial A_z}{\partial t} = - \left(\frac{\partial}{\partial x}\left[\frac{1}{\mu} \frac{\partial A_z}{\partial x}\right] + \frac{\partial}{\partial y}\left[\frac{1}{\mu} \frac{\partial A_z}{\partial y}\right]\right) + J_z,
+\end{equation*}
 
 \begin{problem}
     Find $A_z$ in the system
     \begin{equation}
-        \sigma\frac{\partial A_z}{\partial t} = \nabla \times \left[\frac{1}{\mu}\nabla A_z\right] + J_z,
+        \sigma\frac{\partial A_z}{\partial t} = - \nabla \cdot \left(\frac{1}{\mu} \nabla A_z \right) + J_z,
     \end{equation}
     where
     \begin{itemize}
@@ -78,17 +81,26 @@ we can formulate a system that we can solve.
     \end{itemize}
     From this point onwards, this will be formulated as
     \begin{equation}
-        \sigma\dot u = \nabla \times \left[\frac{1}{\mu}\nabla u\right] + f.
+        \sigma\dot u = \nabla \cdot \left[\frac{1}{\mu}\nabla u\right] + f.
     \end{equation}
 \end{problem}
 
 \newpage
-\section{Finite Element Approach}
-To solve this system, the finite element method can be used. This leads to the following weak form.
+\section{Spatial discretisation using finite element method}
+To solve this system, the finite element method can be used. Choosing a first order basis function 
+\[
+    \phi_i = a_i + b_i x + c_i y,
+\]
+for each node $i$, the solution $u$ can be approximated as
+\[
+    u = \sum_{i=1}^N u_i \phi_i.
+\]
+This results in the following weak form.
 \begin{weakform}
-    \begin{equation*}
+    \begin{equation}
         \sigma M \dot u = \frac{1}{\mu}K u + f,
-    \end{equation*}
+        \label{eqn:weakform}
+    \end{equation}
     where
     \begin{itemize}
         \item $u$ is $A_z$, the solution.
@@ -97,4 +109,69 @@ To solve this system, the finite element method can be used. This leads to the f
         \item $f$ is the source term, given by $J_z$,
     \end{itemize}
 \end{weakform}
-The solution of this problem is a time dependent solution, which makes it a difficult to solve problem. A few paths can be taken to simplify.
+
+\subsection{Time dependence}
+The time derivative in equation \ref{eqn:weakform} can be approximated using a backward Euler method, 
+\begin{equation}
+    \sigma \frac{u^{n+1} - u^n}{\Delta t} = \frac{1}{\mu}K u^{n+1} + f^{n+1},
+\end{equation}
+
+\subsection{Single frequency}
+One possible assumption is that, because the current has a constant frequency, $A_z$ also has one frequency. 
+Then, separation of variables is valid, and we can write
+\begin{align*}
+    u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
+\end{align*}
+This means that $\frac{\partial}{\partial t} \to \omega j$. The new system is then
+\begin{equation}
+    \sigma j \omega \hat u = \nabla \times \left[\frac{1}{\mu}\nabla \hat u\right] + f,
+\end{equation}
+met de weak form
+\begin{equation*}
+    \left[\sigma \omega j M + \frac{1}{\mathbf \mu}A\right]\hat u = \hat f.
+\end{equation*}
+
+\subsection{Meerdere frequenties}
+De aanname dat er één frequentie is, is niet geldig. STEDIN meet namelijk dat dit niet het geval is. We kunnen het probleem ook opsplitsen in meerdere frequenties:
+\begin{equation}
+    u(x,y,t) = \hat u_1(x,y) e^{j\omega_1 t} + \hat u_2(x,y) e^{j\omega_2 t} + \dots.
+\end{equation}
+
+\subsubsection{Superpositie}
+Als we aannemen de frequenties elkaar niet beïnvloeden, kunnen we $\hat u_1(x,y)$ en $\hat u_2(x,y)$ apart oplossen.
+
+\subsubsection{Gekoppeld}
+De aanname dat de frequenties elkaar niet kunnen beïnvloeden is echter niet juist. De permeabiliteit $\mu$ hangt namelijk af van $\text{grad} \; u$. In werkelijkheid is dit systeem dus gekoppeld. Hoe reken je tegelijkertijd meerdere frequenties door? Dit roept de vraag op of het dan toch niet beter is om het probleem direct op te lossen.
+
+\section{Naar het systeem}
+
+We hebben de volgende weak form afgeleidt:
+\begin{equation}
+    \sigma M \dot u = \frac{1}{\mu}A u + f.
+\end{equation}
+Dit willen we transformeren in een systeem van vergelijkingen. De stiffness matrix $A$.
+
+\begin{align*}
+    \int_{\Omega_e} \nabla \times \left(\frac{1}{\mu} \nabla \times \hat u\right) d \Omega \\
+    \omega = \sum_i c_i B_i\\
+    \hat u = \sum_j c_j \hat B_j
+\end{align*}
+
+Kunnen we het ook zonder numerieke integratie doen (dus analytisch)? En anders, welke ... integratie rule gebruiken we? (Gauss-Legendre)
+
+Antwoord Philip: Je hebt een library sympy om dat te doen. Dat rekent de basis functions analytisch uit.
+
+\section{De matrix M}
+
+Voor het element $e_k$:
+\begin{align*}
+    M_{e_k} = \left[\int_{\Omega_{e_k}}\phi_i\phi_jdxdy\right]_{1 \leq i, j \leq 3}
+\end{align*}
+
+We gaan deze matrix diagnoaal maken. Door een approximatie (kwadratuur?)
+\begin{align*}
+    \int_{\Omega_e}g(x,y)dxdy \approx (\text{area}) \cdot (\text{gemiddelde waarde}) \\
+    \left[\phi_i\phi_j\right]_{i \leq i,j \leq 3} = I_{3 \times 3}
+\end{align*}
+
+Voor de $f$ doen we hetzelfde.
