@@ -49,9 +49,13 @@ function main()
         id -> source(Jp, Js, id),
         mesh_data.e_group
     );
-    nonlinear_reluctivity_per_element(B_norm) = map(
-        id -> nonlinear_reluctivity(id, B_norm),
-        mesh_data.e_group
+    # nonlinear_reluctivity_per_element(B_norm) = map(
+    #     id -> nonlinear_reluctivity(id, B_norm),
+    #     mesh_data.e_group
+    # );
+    nonlinear_reluctivity_per_element(u_k) = map(
+        (tup) -> nonlinear_reluctivity(tup[1], tup[2]),
+        zip(mesh_data.e_group, B_norm(mesh_data, u_k))
     );
     conductivity_per_element = map(
         id -> conductivity(id),
@@ -84,19 +88,19 @@ function main()
     # Specify time start, end and step
     t_0 = 0.0
     T   = 2(2pi/ω)
-    dt  = (T-t_0) / 100
+    dt  = (T-t_0) / 200
     println("Time discretization:")
     println("  ▸ t_0 = ", t_0)
     println("  ▸ T   = ", T)
     println("  ▸ dt  = ", dt)
-    println("  ▸ N   = ", Int((T-t_0)/dt))
+    # println("  ▸ N   = ", Int((T-t_0)/dt))
 
     # Initial condition
     u0 = zeros(mesh_data.nnodes)
 
     # Perform time integration using Backward Euler
     println("Solving ODE...")
-    sol = nonlinear_solve(t_0, T, dt, u0, K, M, f, ω, mesh_data)
+    sol = nonlinear_solve2(t_0, T, dt, u0, nonlinear_reluctivity_per_element, M, f, ω, mesh_data)
     println("  ✓ ODE solved       ")
 
     # Save time series

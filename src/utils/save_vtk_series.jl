@@ -51,9 +51,9 @@ function save_vtk_series(
                 print(progress)
 
                 # save the vtk file
-                B, H, Wm, Jel = solution_function(mesh_data, u)
+                B, H, Wm, Jel, rel, perm = solution_function(mesh_data, u)
                 vtk_path = joinpath(name, file_name_t * ".vtu")  # relative to OUTPUT_LOCATION
-                vtk_file = save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel)
+                vtk_file = save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel, rel, perm)
 
                 # save the file name and time
                 collection_add_timestep(time_series, vtk_file, t)

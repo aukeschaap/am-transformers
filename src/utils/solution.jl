@@ -67,14 +67,16 @@ function nonlinear_solution(mesh_data, u, source_per_element, nonlinear_reluctiv
     end
 
     # H is related to B through the reluctivity
-    B_norm = norm(.√(Bx.^2 + By.^2))
-    Hx = nonlinear_reluctivity_per_element(B_norm)' .* Bx;
-    Hy = nonlinear_reluctivity_per_element(B_norm)' .* By;
+    B_norm = real(.√(Bx.^2 + By.^2))
+    rel = nonlinear_reluctivity_per_element(B_norm)
+    perm = 1 ./ rel
+    Hx = rel' .* Bx;
+    Hy = rel' .* By;
     
     # Energy is 0.5 * dot(B, H)
     Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
     
-    return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
+    return (Bx,By,Bz), (Hx, Hy), Wm, Jel, rel, perm;
     
 end
 

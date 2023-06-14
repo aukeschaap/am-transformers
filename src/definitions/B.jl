@@ -17,6 +17,6 @@ function B_norm(mesh_data, u)
         # B components
         Bx[element_id], By[element_id] = construct_Be(c, xs, ys)
     end
-
-    return norm(.√(Bx.^2 + By.^2))
+    
+    return real(.√(Bx.^2 + By.^2))
 end
