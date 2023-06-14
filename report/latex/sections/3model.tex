@@ -98,7 +98,7 @@ for each node $i$, the solution $u$ can be approximated as
 This results in the following weak form.
 \begin{weakform}
     \begin{equation}
-        \sigma M \dot u = \frac{1}{\mu}K u + f,
+        \sigma M \dot u = K(\mu(u)) u + f,
         \label{eqn:weakform}
     \end{equation}
     where
@@ -110,68 +110,64 @@ This results in the following weak form.
     \end{itemize}
 \end{weakform}
 
-\subsection{Time dependence}
-The time derivative in equation \ref{eqn:weakform} can be approximated using a backward Euler method, 
-\begin{equation}
-    \sigma \frac{u^{n+1} - u^n}{\Delta t} = \frac{1}{\mu}K u^{n+1} + f^{n+1},
-\end{equation}
+\noindent The mass matrix on element $e_k$,  $M_{e_k}$ is given by
+\begin{align*}
+    M_{e_k} = \left[\int_{\Omega_{e_k}}\phi_i\phi_j d\Omega \right]_{1 \leq i, j \leq 3}
+\end{align*}
 
-\subsection{Single frequency}
-One possible assumption is that, because the current has a constant frequency, $A_z$ also has one frequency. 
-Then, separation of variables is valid, and we can write
+\noindent Similarly, the local stiffness matrix $K_{e_k}$ is given by
+\begin{align*}
+    K_{e_k}(\mu(u)) &= \left[\int_{\Omega_{e_k}} \phi_i \nabla \cdot \left(\frac{1}{\mu} \nabla \cdot \phi_j \right) d \Omega \right]_{1 \leq i, j \leq 3} \\
+    &= -\int_{\Omega_{e_k}} \frac{1}{\mu} \nabla \phi_i \nabla \phi_j d \Omega
+\end{align*}
+
+\noindent Similarly the local source term $f_{e_k}$ is given by
+\begin{align*}
+    f_{e_k} = \left[\int_{\Omega_e} f \phi_i d \Omega\right]_{1 \leq i \leq 3}\\
+\end{align*}
+
+\noindent We can exactly calculate the integrals using the following quadrature rule for first order polynomials.
+\begin{align*}
+    \int_{\Omega_e}g(x,y)dxdy = A_{e_k}\bar{g}_{e_k}, \\
+\end{align*}
+where $A_{e_k}$ is the area of element $e_k$ and $\bar{g}_{e_k}$ is the average of function $g$ over element $e_k$.
+
+
+
+\subsection{Time dependence}
+If $\mu$ is constant we may write $K(\mu(u)) = K(\mu) = \frac{1}{\mu}K$. In this case the use of seperation of variables is valid. 
+If $\mu$ is dependent on $u$, seperation of variables is not valid due to the non-linear nature of the problem. 
+In this case a time stepping method is necessary. This section outlines both approaches and their implementation.
+Ultimately, the time stepping method is used, because the permeability this paper is concerned with the non-linear case.
+
+\subsection{Seperation of variables}
+Applying seperation of variables
 \begin{align*}
     u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
 \end{align*}
-This means that $\frac{\partial}{\partial t} \to \omega j$. The new system is then
-\begin{equation}
-    \sigma j \omega \hat u = \nabla \times \left[\frac{1}{\mu}\nabla \hat u\right] + f,
-\end{equation}
-met de weak form
+to the weak form \eqref{eqn:weakform} yields
 \begin{equation*}
     \left[\sigma \omega j M + \frac{1}{\mathbf \mu}A\right]\hat u = \hat f.
 \end{equation*}
-
-\subsection{Meerdere frequenties}
-De aanname dat er één frequentie is, is niet geldig. STEDIN meet namelijk dat dit niet het geval is. We kunnen het probleem ook opsplitsen in meerdere frequenties:
+This is a linear system of equations, which can be solved using a linear solver. 
+Additionally it may be solved for multiple frequencies $\omega_1, \omega_2, \dots$ by writing
 \begin{equation}
-    u(x,y,t) = \hat u_1(x,y) e^{j\omega_1 t} + \hat u_2(x,y) e^{j\omega_2 t} + \dots.
+    u(x,y,t) = \hat u_1(x,y) e^{j\omega_1 t} + \hat u_2(x,y) e^{j\omega_2 t} + \dots,
 \end{equation}
+solving the above system for each frequency, and summing the solutions. However it must be noted that the influence of the frequencies on each other is not taken into account in this approach.
+This is why the time stepping method is used in this paper.
 
-\subsubsection{Superpositie}
-Als we aannemen de frequenties elkaar niet beïnvloeden, kunnen we $\hat u_1(x,y)$ en $\hat u_2(x,y)$ apart oplossen.
-
-\subsubsection{Gekoppeld}
-De aanname dat de frequenties elkaar niet kunnen beïnvloeden is echter niet juist. De permeabiliteit $\mu$ hangt namelijk af van $\text{grad} \; u$. In werkelijkheid is dit systeem dus gekoppeld. Hoe reken je tegelijkertijd meerdere frequenties door? Dit roept de vraag op of het dan toch niet beter is om het probleem direct op te lossen.
-
-\section{Naar het systeem}
-
-We hebben de volgende weak form afgeleidt:
+\subsubsection{Time stepping}
+The time derivative in equation \ref{eqn:weakform} can be approximated using a backward Euler method, 
 \begin{equation}
-    \sigma M \dot u = \frac{1}{\mu}A u + f.
+    \sigma M\frac{u^{n+1} - u^n}{\Delta t} = K(u^{n+1}) u^{n+1} + f^{n},
 \end{equation}
-Dit willen we transformeren in een systeem van vergelijkingen. De stiffness matrix $A$.
-
-\begin{align*}
-    \int_{\Omega_e} \nabla \times \left(\frac{1}{\mu} \nabla \times \hat u\right) d \Omega \\
-    \omega = \sum_i c_i B_i\\
-    \hat u = \sum_j c_j \hat B_j
-\end{align*}
-
-Kunnen we het ook zonder numerieke integratie doen (dus analytisch)? En anders, welke ... integratie rule gebruiken we? (Gauss-Legendre)
-
-Antwoord Philip: Je hebt een library sympy om dat te doen. Dat rekent de basis functions analytisch uit.
-
-\section{De matrix M}
-
-Voor het element $e_k$:
-\begin{align*}
-    M_{e_k} = \left[\int_{\Omega_{e_k}}\phi_i\phi_jdxdy\right]_{1 \leq i, j \leq 3}
-\end{align*}
-
-We gaan deze matrix diagnoaal maken. Door een approximatie (kwadratuur?)
-\begin{align*}
-    \int_{\Omega_e}g(x,y)dxdy \approx (\text{area}) \cdot (\text{gemiddelde waarde}) \\
-    \left[\phi_i\phi_j\right]_{i \leq i,j \leq 3} = I_{3 \times 3}
-\end{align*}
-
-Voor de $f$ doen we hetzelfde.
+where $u^n$ is the solution at time $t^n$ and $u^{n+1}$ is the solution at time $t^{n+1} = t^n + \Delta t$.
+This leads to the following implicit time stepping scheme.
+\begin{equation}
+    \left[\sigma M + \Delta t K(u^{n+1})\right]u^{n+1} = \sigma M u^n + \Delta t f^{n}.
+\end{equation}
+During each time step, this non-linear system of equations must be solved. This is done using an iterative scheme with dampening factor $\alpha$.
+\begin{equation}
+    \left[\sigma M + \Delta t K(u^{n+1})\right]u^{n+1} = \sigma M u^n + \Delta t f^{n} + \alpha \left[\sigma M + \Delta t K(u^{n})\right]u^{n}.
+\end{equation}
