@@ -66,18 +66,9 @@ function nonlinear_solution(mesh_data, u, source_per_element, nonlinear_reluctiv
         Jel[element_id] = construct_Je(c, source_per_element[element_id], conductivity_per_element[element_id])
     end
 
-    # H is related to B through the reluctivity
-    B_norm = real(.√(Bx.^2 + By.^2))
-    rel = nonlinear_reluctivity_per_element(B_norm)
-    perm = 1 ./ rel
-    Hx = rel' .* Bx;
-    Hy = rel' .* By;
+    rel = nonlinear_reluctivity_per_element(u)
     
-    # Energy is 0.5 * dot(B, H)
-    Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
-    
-    return (Bx,By,Bz), (Hx, Hy), Wm, Jel, rel, perm;
-    
+    return (Bx,By,Bz), Jel, rel;
 end
 
 

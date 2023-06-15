@@ -69,8 +69,6 @@ function main()
 
     # Assemble constant mass matrix
     println("Linear system:")
-    print("  ✓ Defined K as a function of ||B||\r")
-    K(B_norm) = assemble_K(mesh_data, nonlinear_reluctivity_per_element(B_norm))
     print("  ▸ Constructing f...\r")
     f = assemble_f(mesh_data, source_per_element)
     println("  ✓ Constructed f                   ")
@@ -91,8 +89,8 @@ function main()
 
     # Specify time start, end and step
     t_0 = 0.0
-    T   = 2(2pi/ω)
-    dt  = (T-t_0) / 200
+    T   = 3(2pi/ω)
+    dt  = (T-t_0) / 600
     println("Time discretization:")
     println("  ▸ t_0 = ", t_0)
     println("  ▸ T   = ", T)
@@ -105,8 +103,9 @@ function main()
     # Perform time integration using Backward Euler
     println("Solving ODE...")
     sol = nonlinear_solve(t_0, T, dt, u0, nonlinear_reluctivity_per_element, M, f, ω, mesh_data)
-    println("  ✓ ODE solved       ")
-
+    println("  ✓ ODE solved." *
+            "                                    ")
+    
     # Save time series
     print("  ▸ Saving time series...\r")
     solution_function(mesh_data, u) = nonlinear_solution(mesh_data, u, source_per_element, nonlinear_reluctivity_per_element, conductivity_per_element)
