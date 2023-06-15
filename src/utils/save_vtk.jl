@@ -1,6 +1,6 @@
 
 """Save result"""
-function save_vtk(file_name, mesh_data, u, B, H, Wm, Jel, rel, perm)
+function save_vtk(file_name, mesh_data, u, B, H, Wm, Jel)
 
     # Define nodes (points) and elements (cells)
     points = [mesh_data.xnode mesh_data.ynode]';
@@ -15,8 +15,6 @@ function save_vtk(file_name, mesh_data, u, B, H, Wm, Jel, rel, perm)
     vtkfile["Bnorm", VTKCellData()] = norm.(sqrt.(B[1].^2 + B[2].^2));
     vtkfile["B_vec", VTKCellData()] = real.(B)
     vtkfile["Jel", VTKCellData()]   = Jel;
-    vtkfile["reluctivity", VTKCellData()]   = rel;
-    vtkfile["permeability", VTKCellData()]   = perm;
 
     # Save the file
     outfiles = vtk_save(vtkfile);

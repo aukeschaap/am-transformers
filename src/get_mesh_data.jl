@@ -1,6 +1,4 @@
 
-gmsh.finalize()
-gmsh.initialize()
 
 
 """

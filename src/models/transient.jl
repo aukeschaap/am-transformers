@@ -93,7 +93,7 @@ function main()
 
     # Perform time integration using Backward Euler
     println("Solving ODE...")
-    sol = solve(t_0, T, dt, u0, M, K, f, ω)
+    sol = linear_solve(t_0, T, dt, u0, M, K, f, ω)
     println("  ✓ ODE solved    ")
 
     # Save time series

@@ -55,7 +55,7 @@ function nonlinear_solution(mesh_data, u, source_per_element, nonlinear_reluctiv
         # nodal coordinates
         xs(i) = mesh_data.xnode[nodes[i]];
         ys(i) = mesh_data.ynode[nodes[i]];
-
+        
         # solution coefficients
         c = u[nodes[1:3]];
 
