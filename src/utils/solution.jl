@@ -39,7 +39,7 @@ function solution(mesh_data, u, source_per_element, reluctivity_per_element, con
     # Energy is 0.5 * dot(B, H)
     Wm = 0.5 * (Bx .* Hx .+ By .* Hy);
     
-    return (Bx,By,Bz), (Hx, Hy), Wm, Jel;
+    return (Bx,By,Bz), Jel, reluctivity_per_element;
     
 end
 

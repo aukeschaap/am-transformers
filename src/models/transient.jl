@@ -27,6 +27,11 @@ include("../definitions/assemble_M.jl")
 include("../definitions/backward_euler.jl")
 
 
+const CLEAR_MESH_DATA = false
+const MESH_LOCATION = "./mesh/transformer_stedin.msh"
+const OUTPUT_LOCATION = "./out/"
+
+
 # Build mesh
 if CLEAR_MESH_DATA == true || (@isdefined mesh_data) == false
     gmsh.finalize()
@@ -83,13 +88,13 @@ function main()
 
     # Specify time start, end and step
     t_0 = 0.0
-    T   = 5(2pi/ω)
-    dt  = (T-t_0) / 100
+    T   = 3(2pi/ω)
+    dt  = (T-t_0) / 300
     println("Time discretization:")
     println("  ▸ t_0 = ", t_0)
     println("  ▸ T   = ", T)
     println("  ▸ dt  = ", dt)
-    println("  ▸ N   = ", Int((T-t_0)/dt))
+    println("  ▸ N   = ", Int(round((T-t_0)/dt)))
 
     # Initial condition
     u0 = zeros(mesh_data.nnodes)
@@ -103,10 +108,10 @@ function main()
     print("  ▸ Saving time series...\r")
     solution_function(mesh_data, u) = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element)
     folder_name = save_vtk_series(
-        "transient", 
+        "transient_new", 
         mesh_data, 
         sol,
-        solution
+        solution_function
     )
     println("  ✓ Time series saved as '" * string(folder_name) * "'")
 end
