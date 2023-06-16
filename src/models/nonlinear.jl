@@ -89,8 +89,8 @@ function main()
 
     # Specify time start, end and step
     t_0 = 0.0
-    T   = 3(2pi/ω)
-    dt  = (T-t_0) / 600
+    T   = 2(2pi/ω)
+    dt  = (T-t_0) / 400
     println("Time discretization:")
     println("  ▸ t_0 = ", t_0)
     println("  ▸ T   = ", T)
