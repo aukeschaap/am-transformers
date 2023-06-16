@@ -43,19 +43,3 @@ https://docs.sciml.ai/DiffEqDocs/stable/examples/diffusion_implicit_heat_equatio
 
 ### Large sparse system in Julia
 https://discourse.julialang.org/t/how-to-construct-a-large-sparse-matrix/7241/2
-
-### GPU
-https://www.intel.com/content/www/us/en/developer/articles/technical/vs-code-wsl2-and-oneapi-cross-platform-development.html (guide to install oneAPI)
-
-https://juliagpu.org/
-
-https://github.com/JuliaGPU/oneAPI.jl (oneAPI julia package)
-
-
-https://github.com/intel/compute-runtime (required, including the right driver)
-
-https://github.com/intel/compute-runtime/blob/master/WSL.md (info regarding wsl)
-
-https://www.intel.com/content/www/us/en/download/19344/intel-graphics-windows-dch-drivers.html (example link for right drivers, actual link is located in wsl.md)
-
-https://github.com/SciML/DiffEqGPU.jl (diff eq package for gpu)
