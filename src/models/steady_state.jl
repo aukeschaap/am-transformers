@@ -23,17 +23,24 @@ include("../definitions/general.jl")
 include("../definitions/assemble_Kf.jl")
 
 
+const CLEAR_MESH_DATA = false
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
 
 
-function main()
-
-    # Build mesh
+# Build mesh
+if CLEAR_MESH_DATA == true || (@isdefined mesh_data) == false
+    gmsh.finalize()
+    gmsh.initialize()
     gmsh.open(MESH_LOCATION)
     mesh_data = get_mesh_data();
     println("\nMesh built.")
+else
+    println("\nReused built mesh.")
+end
 
+
+function main()
 
     # Calculate source, reluctivity and conductivity
     print("Evaluating parameters on the elements... ")
@@ -75,7 +82,7 @@ function main()
     print("Saving result in a file...")
     save_vtk(
         "steadystate3.vtu",
-        mesh_data, u, B, H, Wm, Jel
+        mesh_data, u, B, Jel, reluctivity_per_element
     )
     println(" Done.")
 end

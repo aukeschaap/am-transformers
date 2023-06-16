@@ -27,17 +27,20 @@ include("../definitions/assemble_M.jl")
 include("../definitions/backward_euler.jl")
 
 
-const MESH_LOCATION = "./mesh/transformer_stedin.msh"
-const OUTPUT_LOCATION = "./out/"
-
+# Build mesh
+if CLEAR_MESH_DATA == true || (@isdefined mesh_data) == false
+    gmsh.finalize()
+    gmsh.initialize()
+    gmsh.open(MESH_LOCATION)
+    mesh_data = get_mesh_data();
+    println("\nMesh built.")
+else
+    println("\nReused built mesh.")
+end
 
 
 function main()
 
-    # Build mesh
-    gmsh.open(MESH_LOCATION)
-    mesh_data = get_mesh_data();
-    println("\nMesh built.")
 
     # Frequency of source current
     freq = 50 # Hz
@@ -98,13 +101,12 @@ function main()
 
     # Save time series
     print("  ▸ Saving time series...\r")
+    solution_function(mesh_data, u) = solution(mesh_data, u, source_per_element, reluctivity_per_element, conductivity_per_element)
     folder_name = save_vtk_series(
         "transient", 
         mesh_data, 
         sol,
-        source_per_element,
-        reluctivity_per_element,
-        conductivity_per_element
+        solution
     )
     println("  ✓ Time series saved as '" * string(folder_name) * "'")
 end

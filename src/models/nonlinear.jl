@@ -26,10 +26,10 @@ include("../definitions/assemble_Kf.jl")
 include("../definitions/assemble_M.jl")
 include("../definitions/backward_euler.jl")
 
+
 const CLEAR_MESH_DATA = false
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
-
 
 
 # Build mesh
@@ -45,7 +45,6 @@ end
 
 
 function main()
-
 
     # Frequency of source current
     freq = 50 # Hz

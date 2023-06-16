@@ -10,7 +10,7 @@ catch
 end
 
 
-using LinearAlgebra, SparseArrays, WriteVTK, BenchmarkTools, DifferentialEquations, Plots, Printf
+using LinearAlgebra, SparseArrays, WriteVTK, BenchmarkTools, Plots, Printf
 
 include("../FastSparse.jl")
 
@@ -24,16 +24,24 @@ include("../definitions/assemble_Kf.jl")
 include("../definitions/assemble_M.jl")
 
 
+const CLEAR_MESH_DATA = false
 const MESH_LOCATION = "./mesh/transformer_stedin.msh"
 const OUTPUT_LOCATION = "./out/"
 
 
-function main()
-
-    # Build mesh
+# Build mesh
+if CLEAR_MESH_DATA == true || (@isdefined mesh_data) == false
+    gmsh.finalize()
+    gmsh.initialize()
     gmsh.open(MESH_LOCATION)
     mesh_data = get_mesh_data();
     println("\nMesh built.")
+else
+    println("\nReused built mesh.")
+end
+
+
+function main()
 
     # set frequency of source current
     freq = 500 # Hz
@@ -66,9 +74,6 @@ function main()
     M = assemble_M(mesh_data, conductivity_per_element)
     println("  ✓ Constructed M    ")
 
-    # source
-    display(f)    
-
     # Solve linear system
     u = (K + 1im*ω*M) \ f
 
@@ -81,7 +86,7 @@ function main()
 
     # Save solution
     vtk_path = "frequency_approach_" * string(round(freq,digits=2)) * ".vtu";
-    save_vtk(vtk_path, mesh_data, u, B, H, Wm, Jel)
+    save_vtk(vtk_path, mesh_data, u, B, Jel, reluctivity_per_element)
 
 end
 
