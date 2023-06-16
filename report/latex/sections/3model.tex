@@ -37,7 +37,7 @@ where
 \end{itemize}
 
 \begin{assumption}
-    The permittivity of vacuum $\epsilon_0$ is very small, $(\mathcal{O}(10^{-12}))$, and for all materials in this research $\epsilon_r < 10$, so $\epsilon$ can be neclegted. Therefore, $\mathbf{D} = 0$ and can be neglected.
+    The permittivity of vacuum $\epsilon_0$ is very small, $(\mathcal{O}(10^{-12}))$, and for all materials in this research $\epsilon_r < 10$, so $\epsilon$ can be neclegted. Therefore, $\mathbf{D} \approx 0$ and can be neglected.
 \end{assumption}
 
 \noindent Substituting this in the Maxwell equations yields three equations,
@@ -59,15 +59,18 @@ we can formulate a system that we can solve.
 \end{assumption}
 
 \begin{assumption}
-    The flow of current is oriented along the $z$ axis, and the geometry is in the $xy$ plane. That is, $\mathbf{A} = (0, 0, A_z)$ and $\mathbf{J_e} = (0, 0, J_z)$. This implies $\nabla \times \mathbf A = \nabla A_z$.
+    The flow of current is oriented along the $z$ axis, and the geometry is in the $xy$ plane. That is, $\mathbf{A} = (0, 0, A_z)$ and $\mathbf{J_e} = (0, 0, J_z)$. This implies $\nabla \times \mathbf A = (\partial_y A_z, -\partial_x A_z,0)$.
 \end{assumption}
 
-\noindent Substituting in the Maxwell equations and rearranging, we obtain our problem definition.
+\noindent Substituting these assumptions into the Maxwell equations and rearranging, we obtain our problem definition.
+\begin{equation*}
+    \sigma\frac{\partial A_z}{\partial t} = - \left(\frac{\partial}{\partial x}\left[\frac{1}{\mu} \frac{\partial A_z}{\partial x}\right] + \frac{\partial}{\partial y}\left[\frac{1}{\mu} \frac{\partial A_z}{\partial y}\right]\right) + J_z,
+\end{equation*}
 
 \begin{problem}
     Find $A_z$ in the system
     \begin{equation}
-        \sigma\frac{\partial A_z}{\partial t} = \nabla \times \left[\frac{1}{\mu}\nabla A_z\right] + J_z,
+        \sigma\frac{\partial A_z}{\partial t} = - \nabla \cdot \left(\frac{1}{\mu} \nabla A_z \right) + J_z,
     \end{equation}
     where
     \begin{itemize}
@@ -78,17 +81,27 @@ we can formulate a system that we can solve.
     \end{itemize}
     From this point onwards, this will be formulated as
     \begin{equation}
-        \sigma\dot u = \nabla \times \left[\frac{1}{\mu}\nabla u\right] + f.
+        \sigma\dot u = \nabla \cdot \left[\frac{1}{\mu}\nabla u\right] + f.
     \end{equation}
 \end{problem}
 
 \newpage
-\section{Finite Element Approach}
-To solve this system, the finite element method can be used. This leads to the following weak form.
+\section{Spatial discretisation using finite element method}
+TODO: include a figure of the mesh (with reference to Max's Thesis)
+To solve this system, the finite element method can be used. Choosing a first order basis function 
+\[
+    \phi_i = a_i + b_i x + c_i y,
+\]
+for each node $i$, the solution $u$ can be approximated as
+\[
+    u = \sum_{i=1}^N u_i \phi_i.
+\]
+This results in the following weak form.
 \begin{weakform}
-    \begin{equation*}
-        \sigma M \dot u = \frac{1}{\mu}K u + f,
-    \end{equation*}
+    \begin{equation}
+        \sigma M \dot u = K(\mu(u)) u + f,
+        \label{eqn:weakform}
+    \end{equation}
     where
     \begin{itemize}
         \item $u$ is $A_z$, the solution.
@@ -97,4 +110,70 @@ To solve this system, the finite element method can be used. This leads to the f
         \item $f$ is the source term, given by $J_z$,
     \end{itemize}
 \end{weakform}
-The solution of this problem is a time dependent solution, which makes it a difficult to solve problem. A few paths can be taken to simplify.
+
+\noindent The mass matrix on element $e_k$,  $M_{e_k}$ is given by
+\begin{align*}
+    M_{e_k} = \left[\int_{\Omega_{e_k}}\phi_i\phi_j d\Omega \right]_{1 \leq i, j \leq 3}
+\end{align*}
+
+\noindent Similarly, the local stiffness matrix $K_{e_k}$ is given by
+\begin{align*}
+    K_{e_k}(\mu(u)) &= \left[\int_{\Omega_{e_k}} \phi_i \nabla \cdot \left(\frac{1}{\mu} \nabla \cdot \phi_j \right) d \Omega \right]_{1 \leq i, j \leq 3} \\
+    &= -\int_{\Omega_{e_k}} \frac{1}{\mu} \nabla \phi_i \nabla \phi_j d \Omega
+\end{align*}
+
+\noindent Similarly the local source term $f_{e_k}$ is given by
+\begin{align*}
+    f_{e_k}(t) = \left[\int_{\Omega_e} f(x,y,t) \phi_i d \Omega\right]_{1 \leq i \leq 3}\\
+\end{align*}
+
+\noindent We can exactly calculate the integrals using the following quadrature rule for first order polynomials.
+\begin{align*}
+    \int_{\Omega_e}g(x,y)dxdy = A_{e_k}\bar{g}_{e_k}, \\
+\end{align*}
+where $A_{e_k}$ is the area of element $e_k$ and $\bar{g}_{e_k}$ is the average of function $g$ over element $e_k$.
+
+\subsection{Time dependence}
+If $\mu$ is constant we may write $K(\mu(u)) = K(\mu) = \frac{1}{\mu}K$. In this case the use of seperation of variables is valid. 
+If $\mu$ is dependent on $u$, seperation of variables is not valid due to the non-linear nature of the problem. 
+In this case a time stepping method is necessary. This section outlines both approaches and their implementation.
+Ultimately, the time stepping method is used, because the permeability this paper is concerned with the non-linear case.
+
+\subsection{Seperation of variables}
+Applying seperation of variables
+\begin{align*}
+    u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
+\end{align*}
+to the weak form \eqref{eqn:weakform} yields
+\begin{equation*}
+    \left[\sigma \omega j M + \frac{1}{\mathbf \mu}A\right]\hat u = \hat f.
+\end{equation*}
+This is a linear system of equations, which can be solved using a linear solver. 
+Additionally it may be solved for multiple frequencies $\omega_1, \omega_2, \dots$ by writing
+\begin{equation}
+    u(x,y,t) = \hat u_1(x,y) e^{j\omega_1 t} + \hat u_2(x,y) e^{j\omega_2 t} + \dots,
+\end{equation}
+solving the above system for each frequency, and summing the solutions. However it must be noted that the influence of the frequencies on each other is not taken into account in this approach.
+This is why the time stepping method is used in this paper.
+
+\subsection{Time stepping}
+The time derivative in equation \ref{eqn:weakform} can be approximated using a backward Euler method, 
+\begin{equation}
+    \sigma M\frac{u^{n} - u^{n-1}}{\Delta t} = K(u^{n}) u^{n} + f^{n},
+\end{equation}
+where $u^n$ is the solution at time $t^n$ and $u^{n+1}$ is the solution at time $t^{n-1} = t^n - \Delta t$.
+This leads to the following implicit time stepping scheme.
+\begin{equation}
+    \left[\sigma M - \Delta t K(u^{n})\right]u^{n} = \sigma M u^{n-1} + \Delta t f^{n}.
+\end{equation}
+During each time step, this non-linear system of equations must be solved. This is done using an iterative scheme with dampening factor $\alpha$. In the following
+the superscript $n$ denotes time as before and the subcsript $k$ denotes the iteration number
+\begin{align*}
+    u^n_{k-1} &\leftarrow \alpha u^n_k + (1-\alpha)u^n_{k-1},\\
+    u^n_{k} &\leftarrow \left[\sigma M - \Delta t K(u^n_{k-1})\right]^{-1}\left[\sigma M u^{n-1} + \Delta t f^{n}\right].
+\end{align*}
+This is repeated until the residual is sufficiently small. That is
+\begin{equation*}
+    ||u^n_{k-1} - u^{n}_k||_2 \leq \epsilon,
+\end{equation*}
+where $\epsilon$ is a small number. In this paper $\epsilon = 10^{-6}$ is used.

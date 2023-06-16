@@ -1,5 +1,65 @@
 \chapter{Background} \label{sec:background}
 
-This chapter provides some background theory on the problem. It describes the electrical grid, the transformer and the losses.
+This chapter provides some background theory on the problem. It describes the electrical grid, the function of a transformer, 
+the effect of modern appliances on the transformer and modelling of this effect. It draws heavily from the work of \cite{vanDijk2022}.
 
 \section{Electrical grid}
+\label{sec:grid}
+Power generated at dams, nuclear power- and coal plants is transmitted to the consumer through the electrical grid. The grid is a network of power lines, transformers and other equipment. 
+The grid is divided into three parts: generation, transmission and distribution. All these components are displayed in
+figure \ref{fig:grid}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/distribution grid.png}
+    \caption{Electricity grid \cite{mBizon2010}.}
+    \label{fig:grid}
+\end{figure} 
+In the Netherlands specifically, the grid is divided into three voltage levels: extra high voltage, high voltage and low voltage.
+The transmission grid ensures this high voltage ends up at factories, large power transformers and additional power is extracted from industrial and medium sized power plants.
+Moreover, it is managed by a Transmission System Operator (TSO). 
+
+Similarly, the distribution grid connects the transmission grid, cities, the rural network, solar-, wind farms to each other. It, in turn is managed by a Distribution System Operator (DSO)
+In this paper the focus is on the transformers in the distribution grid. Figure \ref{fig:transformer} shows an example of such an transformer. This is because the distribution grid is the last part of the grid before the consumer. 
+Consequently, the effects of modern appliances are most prominent in these types of transformers.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/transformer.png}
+    \caption{Transformer}
+    \label{fig:transformer}
+\end{figure}
+The main goal of any transformer is to allow for the transmission of electrical energy over long distances. 
+It achieves this by either increasing or decreasing voltage. In the former case, it is called a step-up transformer, in the latter case a step-down transformer.
+A step-up tranformer allows for long distance transmission of electrical energy because the power loss is proportional to the current squared, which is decreased for increased voltage.
+On the other hand, a step-down transformer is used to decrease the voltage to a level that is safe for the end-consumer.
+
+\section{Workings of transformer}
+A transformer is a device that transfers electrical energy from one circuit to another through inductively coupled conductors. 
+It has three main components: a primary coil, a secondary coil and a core (see Figure \ref{fig:transformercore}). 
+The primary coil is connected to the source of the electrical energy, the secondary coil is connected to a load and the core is made from a ferromagnetic material.
+In the case of a distribution transformer, the primary coil is connected to the transmission grid and the secondary coil is connected to the distribution grid.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/transformercore.png}
+    \caption{Main components of a transformer: primary (outer) coil, secondary (inner) coil and core. The coils are wound around the core
+    and are wrapped in insulation themselves.}
+    \label{fig:transformercore}
+\end{figure}
+
+The insulation around the coils is necessary to prevent short-circuiting. Hence the lifetime of a transformer is limited by the lifetime of the insulation.
+The latter in turn is determined by the amount of heat generated in the transformer. This heat is dissiapted through the core and the coils, where the core is the main contributor.
+Therefore, this paper focusses on modelling the magnetic field generated in the core. The core losses may then be calculated from this magnetic field with the Steinmetz equation \cite{steinmetzEq} 
+\cite{vanDijk2022}.
+
+\section{Higher Harmonics}
+As stated in Section \ref{sec:grid}, the effect of modern appliances like computers, LEDs, solar panels and electric cars is most prominent in the distribution grid.
+For instance, LEDs are non-linear loads, which means they draw a current that is composed of a fundamental frequency and higher harmonics.
+These higher harmonics are multiples of the fundamental frequency. The effect of these higher harmonics is that the current is no longer sinusoidal, but has a distorted shape.
+This distortion is shown in Figure \ref{fig:higherharmonics}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/higher_harmonics.png}
+    \caption{Distorted current waveform \cite{vanDijk2022}.}
+    \label{fig:higherharmonics}
+\end{figure}
+
+\section{Permeability of the core}

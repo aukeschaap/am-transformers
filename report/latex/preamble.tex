@@ -26,6 +26,7 @@
 % Images and captions
 \usepackage{graphicx}
 \usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
 
 % Hyperlinks
 \usepackage{hyperref}
@@ -125,3 +126,8 @@
 \newcommand{\citehere}[0]{}
 \fi
 \newcommand{\todo}[1]{\textcolor{blue}{\mynote{To do}{#1}}}
+
+%bibliography
+\usepackage[backend=biber, style=apa, sorting=nty]{biblatex}
+\bibliography{bibliography.bib}
+
