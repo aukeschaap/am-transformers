@@ -87,7 +87,14 @@ we can formulate a system that we can solve.
 
 \newpage
 \section{Spatial discretisation using finite element method}
-TODO: include a figure of the mesh (with reference to Max's Thesis)
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/regular_mesh.png}
+    \caption{The mesh used to discretize the domain (\cite{vanDijk2022}).}
+    \label{fig:regular_mesh}
+\end{figure}
+
 To solve this system, the finite element method can be used. Choosing a first order basis function 
 \[
     \phi_i = a_i + b_i x + c_i y,
@@ -134,13 +141,13 @@ This results in the following weak form.
 where $A_{e_k}$ is the area of element $e_k$ and $\bar{g}_{e_k}$ is the average of function $g$ over element $e_k$.
 
 \subsection{Time dependence}
-If $\mu$ is constant we may write $K(\mu(u)) = K(\mu) = \frac{1}{\mu}K$. In this case the use of seperation of variables is valid. 
-If $\mu$ is dependent on $u$, seperation of variables is not valid due to the non-linear nature of the problem. 
+If $\mu$ is constant we may write $K(\mu(u)) = K(\mu) = \frac{1}{\mu}K$. In this case the use of separation of variables is valid. 
+If $\mu$ is dependent on $u$, separation of variables is not valid due to the non-linear nature of the problem. 
 In this case a time stepping method is necessary. This section outlines both approaches and their implementation.
 Ultimately, the time stepping method is used, because the permeability this paper is concerned with the non-linear case.
 
-\subsection{Seperation of variables}
-Applying seperation of variables
+\subsection{Separation of variables}
+Applying separation of variables
 \begin{align*}
     u(x,y,t) = \hat u(x,y) \cdot e^{j\omega t}.
 \end{align*}
@@ -158,22 +165,47 @@ This is why the time stepping method is used in this paper.
 
 \subsection{Time stepping}
 The time derivative in equation \ref{eqn:weakform} can be approximated using a backward Euler method, 
-\begin{equation}
-    \sigma M\frac{u^{n} - u^{n-1}}{\Delta t} = K(u^{n}) u^{n} + f^{n},
-\end{equation}
-where $u^n$ is the solution at time $t^n$ and $u^{n+1}$ is the solution at time $t^{n-1} = t^n - \Delta t$.
-This leads to the following implicit time stepping scheme.
-\begin{equation}
-    \left[\sigma M - \Delta t K(u^{n})\right]u^{n} = \sigma M u^{n-1} + \Delta t f^{n}.
-\end{equation}
-During each time step, this non-linear system of equations must be solved. This is done using an iterative scheme with dampening factor $\alpha$. In the following
-the superscript $n$ denotes time as before and the subcsript $k$ denotes the iteration number
-\begin{align*}
-    u^n_{k-1} &\leftarrow \alpha u^n_k + (1-\alpha)u^n_{k-1},\\
-    u^n_{k} &\leftarrow \left[\sigma M - \Delta t K(u^n_{k-1})\right]^{-1}\left[\sigma M u^{n-1} + \Delta t f^{n}\right].
-\end{align*}
-This is repeated until the residual is sufficiently small. That is
 \begin{equation*}
-    ||u^n_{k-1} - u^{n}_k||_2 \leq \epsilon,
+    \sigma M\frac{u^{k} - u^{k-1}}{\Delta t} = K(u^{k}) u^{k} + f^{k},
 \end{equation*}
-where $\epsilon$ is a small number. In this paper $\epsilon = 10^{-6}$ is used.
+where $u^k$ is the solution at time $t^k$ and $u^{k+1}$ is the solution at time $t^{k+1} = t^k + \Delta t$.
+This leads to the following implicit time stepping scheme.
+\begin{equation*}
+    \left[\sigma M - \Delta t K(u^{k-1})\right]u^{k} = \sigma M u^{k-1} + \Delta t f^{k}.
+\end{equation*}
+During each time step, this non-linear system of equations must be solved. This is done using an iterative scheme with dampening factor $\alpha$. This means that instead of $u^k_i$, there is $\tilde{u}^k_i$, defined by
+\begin{equation*}
+    \tilde{u}^k_{i} = \alpha \tilde{u}^k_{i-1} + (1-\alpha)u^k_{i-1},
+\end{equation*}
+where the superscript $k$ denotes time, and subscript $i$ denotes the iteration number. This is then used for solving the system of equations for $u^k_i$:
+\begin{equation}
+    \left[\sigma M - \Delta t K(\tilde{u}^k_{i})\right] u^k_{i} = \left[\sigma M \tilde{u}_{i}^{k} + \Delta t f^{k}\right].
+\end{equation}
+
+\noindent This is repeated until the residual is sufficiently small. That is
+\begin{equation*}
+    ||u^k_{i-1} - u^{k}_i||_2 \leq \epsilon,
+\end{equation*}
+where $\epsilon$ is a small number. In this paper $\epsilon = 10^{-3}$ is used. The full algorithm is given in Algorithm \ref{alg:time_stepping}.
+
+
+\begin{algorithm}
+    \caption{\label{alg:time_stepping} Time-stepping algorithm using Backward Euler}
+    \begin{algorithmic}[1]
+    \Function{nonlinear-solve}{}
+    \State $u^0 \leftarrow \textbf{0}$
+    \For{$k \in [0, N_t]$}{}
+        \State $i \leftarrow 0$
+        \State $u^k_0 \leftarrow u^{k-1}$
+        \State $\tilde{u}^k_0 \leftarrow u^{k-1}$
+        \While{$\Delta u \leq \epsilon$}{}
+            \State $i \leftarrow i + 1$
+            \State $\tilde{u}^k_{i} \leftarrow \alpha \tilde{u}^k_{i-1} + (1-\alpha)u^k_{i-1}$
+            \State $u^k_{i} \leftarrow \left[\sigma M - \Delta t K(\tilde{u}^k_{i})\right]^{-1}\left[\sigma M \tilde{u}_{i}^{k} + \Delta t f^{k}\right]$
+            \State $\Delta u \leftarrow ||u^k_{i-1} - u^{k}_i||_2$
+        \EndWhile
+        \State $u^{k+1} \leftarrow u^k_i$
+    \EndFor
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
