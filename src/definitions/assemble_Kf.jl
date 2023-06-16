@@ -131,7 +131,6 @@ end
 # assemble_K()
 
 Assemble K without f.
-
 """
 function assemble_K(mesh_data, reluctivity_per_element)
     fsp = FastSparseMatrix(mesh_data.nelements);

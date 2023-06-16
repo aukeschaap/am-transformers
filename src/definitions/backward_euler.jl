@@ -4,9 +4,6 @@ include("../definitions/B.jl")
 """
 # Backward Euler
 Solve our time dependent problem using the backward Euler method.
-
-TODO: implement LU decomposition
-TODO: check julia slack
 """
 function linear_solve(t_start, t_end, dt, u0, K, M, f, ω) :: Solution
     tvec = Vector(t_start:dt:t_end)
@@ -15,14 +12,11 @@ function linear_solve(t_start, t_end, dt, u0, K, M, f, ω) :: Solution
     
     start = time_ns()
     for k = 2:length(tvec)
-        t = (k-1)*dt
-        if (k-1) % 100 == 0
-            print("  ▸ " * string(round(k/length(tvec)*100)) * "% (" * string(round((time_ns() - start)/10^9, digits=2)) * " s)" * "      \r")
-        end
+        _display_progress(k, length(tvec), start)
 
         # Compute the solution at the next time step
         u[k] = vec(
-            (M + dt * K) \ (M * u[k-1] + dt * real(exp(1im * ω * t) .* f))
+            (M + dt * K) \ (M * u[k-1] + dt * real(exp(1im * ω * tvec[k]) .* f))
         )
     end
 
@@ -34,9 +28,6 @@ end
 """
 # Backward Euler
 Solve our nonlinear problem.
-
-TODO: implement LU decomposition
-TODO: check julia slack
 """
 function nonlinear_solve(t_start, t_end, dt, u0, nonlinear_reluctivity_function, M, f, ω, mesh_data) :: Solution
     tvec = Vector(t_start:dt:t_end)
@@ -53,16 +44,16 @@ function nonlinear_solve(t_start, t_end, dt, u0, nonlinear_reluctivity_function,
     for k = 2:number_of_timesteps
         _display_progress(k, number_of_timesteps, start)
 
-        u[k] = _solve(u[k-1], tvec[k], dt, M, f, ω, nonlinear_reluctivity_function)
+        u[k] = _solve_step(u[k-1], tvec[k], dt, M, f, ω, nonlinear_reluctivity_function)
     end
 
     return Solution(tvec, u)
 end
 
 """
-Solving step for nonlinear solver. Should be renamed.
+Solving step for nonlinear solver.
 """
-function _solve(u, t, dt, M, f, ω, nonlinear_reluctivity_function)
+function _solve_step(u, t, dt, M, f, ω, nonlinear_reluctivity_function)
     MAX_ITERATIONS = 40
     tol = 1e-3
     α = 0.9
@@ -91,7 +82,7 @@ function _solve(u, t, dt, M, f, ω, nonlinear_reluctivity_function)
     return u
 end
 
-
+"""Display the progress of the solver."""
 function _display_progress(k, number_of_timesteps, start)
     progress = round(k/number_of_timesteps*100, digits=1)
     elapsed = round((time_ns() - start)/10^9, digits=2)
