@@ -41,15 +41,14 @@ In the case of a distribution transformer, the primary coil is connected to the 
     \centering
     \includegraphics[width=0.5\textwidth]{img/transformercore.png}
     \caption{Main components of a transformer: primary (outer) coil, secondary (inner) coil and core. The coils are wound around the core
-    and are wrapped in insulation themselves \cite{sSatsangi}.}
+    and are wrapped in insulation themselves (\cite{sSatsangi}).}
     \label{fig:transformercore}
 \end{figure}
 
 The insulation around the coils is necessary to prevent short-circuiting. Hence the lifetime of a transformer is limited by the lifetime of the insulation.
 The latter in turn is determined by the amount of heat generated in the transformer. This heat is dissiapted through the core and the coils, where the core is the main contributor.
 Therefore, this paper focusses on modelling the magnetic field generated in the core. 
-The core losses and subsequent temperature profile may then be calculated from this magnetic field using the Steinmetz equation \cite{steinmetzEq},
-\cite{vanDijk2022}.
+The core losses and subsequent temperature profile may then be calculated from this magnetic field using the Steinmetz equation (\cite{steinmetzEq,vanDijk2022}).
 
 \section{Higher Harmonics}
 As stated in Section \ref{sec:grid}, the effect of modern appliances like computers, LEDs, solar panels and electric cars is most prominent in the distribution grid.
@@ -59,29 +58,35 @@ This distortion is shown in Figure \ref{fig:higherharmonics}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{img/higher_harmonics.png}
-    \caption{Distorted current waveform \cite{vanDijk2022}.}
+    \caption{Distorted current waveform (\cite{vanDijk2022}).}
     \label{fig:higherharmonics}
 \end{figure}
-The magnetic field in the core depends on the frequency. A concrete example of this is the skin effect, which is the tendency of an alternating electric current to become distributed within a conductor 
-such that the current density is largest near the surface of the conductor, and decreases with greater depths in the conductor.
-The depth at which the current density is 37\% of the current density at the surface is called the skin depth. It is given by \cite{domenico}
+The magnetic field in the core depends on the frequency. A concrete example of this is the skin effect, which is the tendency of an alternating electric current to become distributed within a conductor such that the current density is largest near the surface of the conductor, and decreases with greater depths in the conductor. The depth at which the current density is 37\% of the current density at the surface is called the skin depth. It is given by (\cite{skinEffect})
 \begin{equation}
-    \delta = \sqrt{\frac{2}{\omega \mu \sigma}},
+    \delta = \sqrt{\frac{2 \rho}{\omega \mu}} = \sqrt{\frac{\rho}{\pi f \mu_0 \mu_r}},
 \end{equation}
-which becomes smaller for larger frequencies. Hence, the skin effect is more prominent for higher harmonics. Therefore, more magnetic flux is generated in the outer layers of the core, leading to a higher loss, as well as a lower permeability. A numerical result is given in \cref{tab:skin_effect}
+where:
+\begin{itemize}
+    \item $\rho$: The resistivity of the conductor. For an iron core, this is taken as $\rho = 9.71 \cdot 10^{-8}$ $\Omega \! \cdot \! \text{m}$ (\cite{restitivity}).
+    \item $\mu$: The permeability of the conductor, given by $\mu_r \mu_0$.
+    \item $\mu_r$: The relative magnetic permeability of the conductor. For an iron core, this is somewhere around $10^3$. Therefore, this is chosen as $\mu_r = 1000$.
+    \item $\mu_0$: The permeability of free space. This is generally taken as $\mu_0 = 4 \pi \cdot 10^{-7}$ $\text{H/m}$.
+    \item $\omega$: The angular frequency of current, given by $2 \pi f$, where $f$ is the frequency. This is variable in our case.
+\end{itemize}
+This becomes smaller for higher frequencies, and is hence more prominent for higher harmonics. Therefore, higher harmonics lead to an increased core loss. A numerical result is given in \cref{tab:skin_effect}.
 
 \begin{table}
     \centering
     \begin{tabular}{l|l}
-        Frequency & $\delta$ \\
+        Frequency & $\delta$ (mm) \\
         \hline
-        50 Hz   & 7.1 \\
-        100 Hz  & 5.0 \\
-        150 Hz  & 3.6 \\
-        500 Hz  & 2.2 \\
-        1000 Hz & 1.6 \\
+        50 Hz   & 0.701 mm \\
+        100 Hz  & 0.496 mm \\
+        150 Hz  & 0.351 mm \\
+        500 Hz  & 0.222 mm \\
+        1000 Hz & 0.157 mm \\
     \end{tabular}
-    \caption{Numerical values for the skin effect at different frequencies, with $\mu = \mu_r\mu_0 \approx 1000 \cdot 4e^{-7} \pi \approx 1.26e^{-3}, \sigma = 0.1$.}
+    \caption{Numerical values for the skin effect at different frequencies, with parameters as described below.}
     \label{tab:skin_effect}
 \end{table}
 
